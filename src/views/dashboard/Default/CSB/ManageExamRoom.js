@@ -36,6 +36,136 @@ const ManageExamRoom = () => {
     //     setNumberOfFields2(0);
     // };
 
+    const testData = [
+        {
+            "ID": "CSB01",
+            "Name": "สอบหัวข้อ"
+        },
+        {
+            "ID": "CSB02",
+            "Name": "สอบก้าวหน้า"
+        },
+        {
+            "ID": "CSB03",
+            "Name": "สอบป้องกัน"
+        }
+    ];
+
+    const roomData = [
+        {
+            "ID": "78-618",
+        },
+        {
+            "ID": "78-618/2",
+        },
+        {
+            "ID": "78-619",
+        },
+        {
+            "ID": "78-621",
+        },
+        {
+            "ID": "78-617",
+        }
+    ];
+
+    const Teacher = [
+        {
+            "ID": "NLP",
+            "Name": "ลือพล ไม่น่ารักเลย"
+        },
+        {
+            "ID": "SWK",
+            "Name": "สุวัชชัย ตัวตึง"
+        },
+        {
+            "ID": "KAB",
+            "Name": "คัณฑารัตน์ สุดละเอียด"
+        },
+        {
+            "ID": "CRL",
+            "Name": "เฉียบวุฒิ สุดจ้าบ"
+        },
+        {
+            "ID": "ARN",
+            "Name": "เอิญ ไม่ใจดี"
+        },
+        {
+            "ID": "TNA",
+            "Name": "ธณาภัทร ใจร้าย"
+        },
+        {
+            "ID": "BLP",
+            "Name": "เบญจพร ร้ายกาจ"
+        },
+        {
+            "ID": "NAT",
+            "Name": "ณัฐวุฒิ ช่วยด้วย"
+        },
+        {
+            "ID": "KOB",
+            "Name": "กอบเกียรติ อิหยังวะ"
+        },
+        {
+            "ID": "ANW",
+            "Name": "อนุสรณ์ หนีไป"
+        }
+    ]
+
+    const positionData = [
+        {
+            "ID": "No1",
+            "Name": "ประธาน"
+        },
+        {
+            "ID": "No2",
+            "Name": "กรรมการ"
+        }
+    ];
+
+    const ProjectData = [
+        {
+            "ID": "SP1-01",
+            "Name": "การตรวจสอบจบ"
+        },
+        {
+            "ID": "SP1-02",
+            "Name": "การยื่นสอบปริญญานิพนจ์"
+        },
+        {
+            "ID": "SP1-03",
+            "Name": "โมเดลจำลองอะตอม"
+        },
+        {
+            "ID": "SP1-04",
+            "Name": "AIจับมนุษย์"
+        },
+        {
+            "ID": "SP1-05",
+            "Name": "โปรแกรมปลูกต้นไม้"
+        },
+        {
+            "ID": "SP1-06",
+            "Name": "โปรแกรมออกแบบการนำเสนอ"
+        },
+        {
+            "ID": "SP1-07",
+            "Name": "โปรแกรมคำนวณพื้นที่"
+        },
+        {
+            "ID": "SP1-08",
+            "Name": "การจัดการการสอบสำหรับ CSB"
+        },
+        {
+            "ID": "SP1-09",
+            "Name": "โปรแกรมจองตั๋วรถไฟ"
+        },
+        {
+            "ID": "SP1-10",
+            "Name": "เกมเอาตัวรอดในCS"
+        }
+    ]
+
     return (
         <MainCard>
             <Grid container spacing={gridSpacing}>
@@ -90,9 +220,17 @@ const ManageExamRoom = () => {
                                             //fullWidth
                                             sx={{ minWidth: 300 }}
                                         >
-                                            <MenuItem value="option1">CSB01 : สอบหัวข้อ</MenuItem>
+                                            {/* <MenuItem value="option1">CSB01 : สอบหัวข้อ</MenuItem>
                                             <MenuItem value="option2">CSB02 : สอบก้าวหน้า</MenuItem>
-                                            <MenuItem value="option3">CSB03 : สอบป้องกัน</MenuItem>
+                                            <MenuItem value="option3">CSB03 : สอบป้องกัน</MenuItem> */}
+                                            {testData.map((testData) => (
+                                                    <MenuItem
+                                                        key={testData.ID}
+                                                        value={testData.ID}
+                                                    >
+                                                        {testData.ID+" : "+testData.Name}
+                                                    </MenuItem>
+                                                ))}
                                         </Select>
                                     </FormControl>
                                     <FormControl
@@ -106,9 +244,14 @@ const ManageExamRoom = () => {
                                             onChange={(e) => setRoom(e.target.value)}
                                             sx={{ minWidth: 300 }}
                                         >
-                                            <MenuItem value="room1">618/1</MenuItem>
-                                            <MenuItem value="room2">618/2</MenuItem>
-                                            <MenuItem value="room3">619</MenuItem>
+                                            {roomData.map((roomData) => (
+                                                    <MenuItem
+                                                        key={roomData.ID}
+                                                        value={roomData.ID}
+                                                    >
+                                                        {roomData.ID}
+                                                    </MenuItem>
+                                                ))}
                                         </Select>
                                     </FormControl>
                                     <FormControl
@@ -172,9 +315,14 @@ const ManageExamRoom = () => {
                                                 id={`id-${index}`}
                                                 sx={{ minWidth: 300 }}
                                             >
-                                                <MenuItem value="id1">อาจารย์ 1</MenuItem>
-                                                <MenuItem value="id2">อาจารย์ 2</MenuItem>
-                                                <MenuItem value="id3">อาจารย์ 3</MenuItem>
+                                                {Teacher.map((Teacher) => (
+                                                    <MenuItem
+                                                        key={Teacher.ID}
+                                                        value={Teacher.ID}
+                                                    >
+                                                        {Teacher.ID+" "+Teacher.Name}
+                                                    </MenuItem>
+                                                ))}
                                             </Select>
                                         </FormControl>
                                         <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
@@ -184,8 +332,14 @@ const ManageExamRoom = () => {
                                                 id={`name-${index}`}
                                                 sx={{ minWidth: 300 }}
                                             >
-                                                <MenuItem value="name1">ประธานกรรมการ</MenuItem>
-                                                <MenuItem value="name2">กรรมการ</MenuItem>
+                                                {positionData.map((positionData) => (
+                                                    <MenuItem
+                                                        key={positionData.Name}
+                                                        value={positionData.Name}
+                                                    >
+                                                        {positionData.Name}
+                                                    </MenuItem>
+                                                ))}
                                             </Select>
                                         </FormControl>
                                     </Grid>
@@ -235,9 +389,14 @@ const ManageExamRoom = () => {
                                                 id={`id-${index}`}
                                                 sx={{ minWidth: 300 }}
                                             >
-                                                <MenuItem value="id1">โครงงาน 1</MenuItem>
-                                                <MenuItem value="id2">โครงงาน 2</MenuItem>
-                                                <MenuItem value="id3">โครงงาน 3</MenuItem>
+                                                {ProjectData.map((ProjectData) => (
+                                                    <MenuItem
+                                                        key={ProjectData.ID}
+                                                        value={ProjectData.ID}
+                                                    >
+                                                        {ProjectData.ID+" : "+ProjectData.Name}
+                                                    </MenuItem>
+                                                ))}
                                             </Select>
                                         </FormControl>
                                         <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>

@@ -3,36 +3,49 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Butto
 import { Grid } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 function ListNameStudentS1() {
-    const checklistData = [
-        { id: 1, StudentID: '6304062620011', name: 'สาวสวย บ้านนา', StatusProject: 'กำลังดำเนินการ', },
-        { id: 2, StudentID: '6304062620012', name: 'หนุ่มหล่อ ชาวสวน', StatusProject: 'สำเร็จ', },
-        { id: 3, StudentID: '6304062620013', name: 'ใจดี ใจงาม', StatusProject: 'ไม่สำเร็จ', },
-        // Add more checklist items as needed
+    const initialChecklistData = [
+        { StudentID: '6304062620022', name: 'สาวสวย บ้านนา', StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: '6304062620032', name: 'หนุ่มหล่อ ชาวสวน', StatusProject: 'สำเร็จ' },
+        { StudentID: '6304062620043', name: 'ใจดี ใจงาม', StatusProject: 'ไม่สำเร็จ' },
+        { StudentID: "6304062620061", name: "ณัชริกา กันทะสอน", StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: "6304062620062", name: "ใจดี ยืมเงิน", StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: "6304062620063", name: "สบายดี สบายใจ", StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: "6304062620064", name: "สุดสวย สุดหล่อ", StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: "6304062620065", name: "ไอ่กล้อง ไอ่อ้วน", StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: "6304062620066", name: "แมวเหมียว น่ารัก", StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: "6304062620067", name: "มะหมา สุดหล่อ", StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: "6304062620068", name: "หนูน้อย น่ารัก", StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: "6304062620069", name: "สวัสดีครับ ผมนวย", StatusProject: 'กำลังดำเนินการ' },
+        { StudentID: "6304062620070", name: "ไม่มี ตังค์ค่า", StatusProject: 'กำลังดำเนินการ' }
     ];
 
+    const checklistData = initialChecklistData.map(item => ({
+        id: uuidv4(),
+        ...item
+    }));
+
     const handleButtonClick = (id) => {
-        // Handle button click, e.g., redirect to another page
         console.log(`Button clicked for item with id ${id}`);
-        // window.location.href = "https://example.com"; // Uncomment to redirect to a URL
     };
 
-    const [NAMES1, setNameS1] = useState([]);
+    // const [NAMES2, setNameS2] = useState([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get('http://localhost:9999/NAMES1');
-                setNameS1(response.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const response = await axios.get('http://localhost:9999/NAMES2');
+    //             setNameS2(response.data);
+    //         } catch (error) {
+    //             console.error('Error fetching data:', error);
+    //         }
+    //     };
 
-        fetchData();
-    }, []);
-
+    //     fetchData();
+    // }, []);
 
     return (
         <MainCard>
@@ -57,9 +70,9 @@ function ListNameStudentS1() {
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {checklistData.map(item => (
+                                            {checklistData.map((item, index) => (
                                                 <TableRow key={item.id}>
-                                                    <TableCell>{item.id}</TableCell>
+                                                    <TableCell>{index + 1}</TableCell>
                                                     <TableCell>{item.StudentID}</TableCell>
                                                     <TableCell>{item.name}</TableCell>
                                                     <TableCell>{item.StatusProject}</TableCell>
