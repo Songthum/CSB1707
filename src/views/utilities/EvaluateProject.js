@@ -250,6 +250,7 @@ function EvaluateProject() {
                                   <Select
                                     labelId="ProjectID-select-label"
                                     value={ProjectSelect.ID}
+                                    onChange={handleChange}
                                     label="ProjectID"
                                     margin="normal"
                                     row
@@ -257,9 +258,8 @@ function EvaluateProject() {
                                       minWidth: 150,
                                       //marginRight: 33,
                                     }}
-                                    onChange={handleChange}
                                   >
-                                    {project.filter(project => project.ID !== ProjectSelect.ID).map((project) => (
+                                    {project.filter(project => project.ID !== ProjectSelect2.ID).map((project) => (
                                       <MenuItem
                                         key={project.ID}
                                         value={project.ID}
@@ -270,9 +270,11 @@ function EvaluateProject() {
                                   </Select>
                                 </FormControl>
                                 <TextField
-                                  label="ชื่อโครงงาน"
-                                  value={ProjectSelect.Name}
-                                  disabled
+                                        disabled
+                                        id="Name"
+                                        label="ชื่อโครงงาน"
+                                        defaultValue="ชื่อโครงงาน"
+                                        value={ProjectSelect.Name}
                                   sx={{
                                     '& > :not(style)': { ml: 5, width: '50ch' },
                                   }}
@@ -283,6 +285,7 @@ function EvaluateProject() {
                                 <p>โดย</p>
                                 <TextField
                                   label="รหัสนักศึกษาคนที่ 1"
+                                  defaultValue="รหัสนักศึกษาคนที่ 1"
                                   value={ProjectSelect.SID}
                                   disabled
                                   sx={{
@@ -291,6 +294,7 @@ function EvaluateProject() {
                                 />
                                 <TextField
                                   label="ชื่อ-สกุลนักศึกษาคนที่ 1"
+                                  defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 1"
                                   value={ProjectSelect.SName}
                                   disabled
                                   sx={{
@@ -299,6 +303,7 @@ function EvaluateProject() {
                                 /><br></br>
                                 <TextField
                                   label="รหัสนักศึกษาคนที่ 2"
+                                  defaultValue="รหัสนักศึกษาคนที่ 2"
                                   value={ProjectSelect.SID2}
                                   disabled
                                   sx={{
@@ -307,6 +312,7 @@ function EvaluateProject() {
                                 />
                                 <TextField
                                   label="ชื่อ-สกุลนักศึกษาคนที่ 2"
+                                  defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 2"
                                   value={ProjectSelect.SName2}
                                   disabled
                                   sx={{
@@ -316,6 +322,7 @@ function EvaluateProject() {
                                 <p>อาจารย์ที่ปีกษา</p>
                                 <TextField
                                   label="ชื่ออาจารย์ที่ปรึกษา"
+                                  defaultValue="ชื่ออาจารย์ที่ปรึกษา"
                                   value={ProjectSelect.TName}
                                   disabled
                                   sx={{

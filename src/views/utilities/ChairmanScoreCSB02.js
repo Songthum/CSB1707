@@ -361,7 +361,11 @@ function ChairmanScoreCSB02() {
       ];
 
     const [ProjectSelect, setProjectSelect] = useState('');
+    const [ProjectSelect2, setProjectSelect2] = useState('');
 
+    const handleChange = (event) => {
+        setProjectSelect(project.find(person => person.ID === event.target.value))
+    };
     const handleNameChange = (id, value) => {
         setData(prevData =>
             prevData.map(item =>
@@ -413,12 +417,20 @@ function ChairmanScoreCSB02() {
                                             <Select
                                                 labelId="ProjectID-select-label"
                                                 value={ProjectSelect.ID}
-                                                onChange={(e) => setProjectSelect(e.target.value)}
+                                                onChange={handleChange}
                                                 // label="ProjectID"
                                                 margin="normal"
                                                 sx={{ minWidth: 150 }}
-                                                disabled
+                                                // disabled
                                             >
+                                                {project.filter(project => project.ID !== ProjectSelect2.ID).map((project) => (
+                                                    <MenuItem
+                                                        key={project.ID}
+                                                        value={project.ID}
+                                                    >
+                                                        {project.ID}
+                                                    </MenuItem>
+                                                ))}
                                                 {/* <MenuItem value="SP1-01">SP1-01</MenuItem>
                                                 <MenuItem value="SP1-02">SP1-02</MenuItem>
                                                 <MenuItem value="SP1-03">SP1-03</MenuItem> */}
@@ -426,6 +438,7 @@ function ChairmanScoreCSB02() {
                                         </FormControl>
                                         <TextField
                                             label="ชื่อโครงงาน"
+                                            defaultValue="ชื่อโครงงาน"
                                             value={ProjectSelect.Name}
                                             onChange={(e) => setTextField3(e.target.value)}
                                             disabled
@@ -435,37 +448,42 @@ function ChairmanScoreCSB02() {
                                         <p>โดย</p>
                                         <TextField
                                             label="รหัสนักศึกษาคนที่ 1"
-                                            value={textField1}
-                                            onChange={(e) => setTextField1(e.target.value)}
+                                            defaultValue="รหัสนักศึกษาคนที่ 1"
+                                            value={ProjectSelect.SID}
+                                            // onChange={(e) => setTextField1(e.target.value)}
                                             disabled
                                             sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
                                         />
                                         <TextField
                                             label="ชื่อ-สกุลนักศึกษาคนที่ 1"
-                                            value={textField2}
-                                            onChange={(e) => setTextField2(e.target.value)}
+                                            defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 1"
+                                            value={ProjectSelect.SName}
+                                            // onChange={(e) => setTextField2(e.target.value)}
                                             disabled
                                             sx={{ '& > :not(style)': { mr: 0, width: '30ch' } }}
                                         /><br />
                                         <TextField
                                             label="รหัสนักศึกษาคนที่ 2"
-                                            value={textField1}
-                                            onChange={(e) => setTextField1(e.target.value)}
+                                            defaultValue="รหัสนักศึกษาคนที่ 2"
+                                            value={ProjectSelect.SID2}
+                                            // onChange={(e) => setTextField1(e.target.value)}
                                             disabled
                                             sx={{ '& > :not(style)': { mr: 5, ml: 5, mt: 3, width: '25ch' } }}
                                         />
                                         <TextField
                                             label="ชื่อ-สกุลนักศึกษาคนที่ 2"
-                                            value={textField2}
-                                            onChange={(e) => setTextField2(e.target.value)}
+                                            defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 2"
+                                            value={ProjectSelect.SName2}
+                                            // onChange={(e) => setTextField2(e.target.value)}
                                             disabled
                                             sx={{ '& > :not(style)': { mt: 3, width: '30ch' } }}
                                         />
                                         <p>อาจารย์ที่ปีกษา</p>
                                         <TextField
                                             label="ชื่ออาจารย์ที่ปรึกษา"
-                                            value={textField1}
-                                            onChange={(e) => setTextField1(e.target.value)}
+                                            defaultValue="ชื่ออาจารย์ที่ปรึกษา"
+                                            value={ProjectSelect.TName}
+                                            // onChange={(e) => setTextField1(e.target.value)}
                                             disabled
                                             sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
                                         />
