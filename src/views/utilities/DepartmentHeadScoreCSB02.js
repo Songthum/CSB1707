@@ -24,12 +24,8 @@ import { gridSpacing } from 'store/constant';
 
 function DepartmentHeadScoreCSB02() {
     // State for select field
-    const [selectedOption, setSelectedOption] = useState('');
-
-    // State for text fields
-    const [textField1, setTextField1] = useState('');
-    const [textField2, setTextField2] = useState('');
-    const [textField3, setTextField3] = useState('');
+    const [ProjectSelect, setProjectSelect] = useState('');
+    const [ProjectSelect2, setProjectSelect2] = useState('');
 
     const [openDialog, setOpenDialog] = useState(false);
 
@@ -42,6 +38,64 @@ function DepartmentHeadScoreCSB02() {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
+    
+    const handleChange = (event) => {
+        setProjectSelect(project.find(person => person.ID === event.target.value));
+      };
+
+    const project = [
+        {
+          "ID": "001",
+          "Name": "ระบบตรวจสอบการวัดพื้นที่",
+          "SID": "6304062620061",
+          "SName": "ณัชริกา กันทะสอน",
+          "SID2": "6304062620062",
+          "SName2": "ใจดี ยืมเงิน",
+          "TID": "NLP",
+          "TName": "ลือพล ไม่น่ารักเลย"
+        },
+        {
+          "ID": "002",
+          "Name": "ระบบจำลองโมเดล",
+          "SID": "6304062620063",
+          "SName": "สบายดี สบายใจ",
+          "SID2": "6304062620064",
+          "SName2": "สุดสวย สุดหล่อ",
+          "TID": "SWK",
+          "TName": "สุวัชชัย ตัวตึง"
+        },
+        {
+          "ID": "003",
+          "Name": "เว็บไซต์ขายของ",
+          "SID": "6304062620065",
+          "SName": "ไอ่กล้อง ไอ่อ้วน",
+          "SID2": "6304062620066",
+          "SName2": "แมวเหมียว น่ารัก",
+          "TID": "KAB",
+          "TName": "คัณฑารัตน์ สุดละเอียด"
+        },
+        {
+          "ID": "004",
+          "Name": "เว็บไซต์ขายที่ดิน",
+          "SID": "6304062620067",
+          "SName": "มะหมา สุดหล่อ",
+          "SID2": "6304062620068",
+          "SName2": "หนูน้อย น่ารัก",
+          "TID": "CRL",
+          "TName": "เฉียบวุฒิ สุดจ้าบ"
+    
+        },
+        {
+          "ID": "005",
+          "Name": "เกมส์ปลูกผัก",
+          "SID": "6304062620069",
+          "SName": "สวัสดีครับ ผมนวย",
+          "SID2": "6304062620070",
+          "SName2": "ไม่มี ตังค์ค่า",
+          "TID": "ARN",
+          "TName": "เอิญ ไม่ใจดี"
+        }
+    ];
 
     // Sample data for the table
     const data = [
@@ -83,8 +137,8 @@ function DepartmentHeadScoreCSB02() {
                                         <InputLabel id="ProjectID-select-label">ProjectID</InputLabel>
                                         <Select
                                             labelId="ProjectID-select-label"
-                                            value={selectedOption}
-                                            onChange={(e) => setSelectedOption(e.target.value)}
+                                            value={ProjectSelect.ID}
+                                            onChange={handleChange}
                                             //fullWidth
                                             label="ProjectID"
                                             margin="normal"
@@ -93,20 +147,23 @@ function DepartmentHeadScoreCSB02() {
                                                 minWidth: 150,
                                                 //marginRight: 33,
                                             }}
-                                            disabled
                                         >
-                                            <MenuItem value="SP1-01">SP1-01</MenuItem>
-                                            <MenuItem value="SP1-02">SP1-02</MenuItem>
-                                            <MenuItem value="SP1-03">SP1-03</MenuItem>
+                                            {project.filter(project => project.ID !== ProjectSelect2.ID).map((project) => (
+                                                <MenuItem
+                                                    key={project.ID}
+                                                    value={project.ID}
+                                                >
+                                                    {project.ID}
+                                                </MenuItem>
+                                            ))}
                                         </Select>
                                     </FormControl>
                                     <TextField
-                                        label="ชื่อโครงงาน"
-                                        value={textField3}
-                                        onChange={(e) => setTextField3(e.target.value)}
                                         disabled
-                                        //fullWidth
-                                        //margin="normal"
+                                        id="Name"
+                                        label="ชื่อโครงงาน"
+                                        defaultValue="ชื่อโครงงาน"
+                                        value={ProjectSelect.Name}
                                         sx={{
                                             '& > :not(style)': { ml: 5, width: '50ch' },
                                         }}
@@ -117,41 +174,36 @@ function DepartmentHeadScoreCSB02() {
                                     <p>โดย</p>
                                     <TextField
                                         label="รหัสนักศึกษาคนที่ 1"
-                                        value={textField1}
-                                        onChange={(e) => setTextField1(e.target.value)}
+                                        defaultValue="รหัสนักศึกษาคนที่ 1"
+                                        value={ProjectSelect.SID}
                                         disabled
-                                        //fullWidth
-                                        //margin="normal"
                                         sx={{
                                             '& > :not(style)': { mr: 5, ml: 5, width: '25ch' },
                                         }}
                                     />
                                     <TextField
                                         label="ชื่อ-สกุลนักศึกษาคนที่ 1"
-                                        value={textField2}
-                                        onChange={(e) => setTextField2(e.target.value)}
+                                        defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 1"
+                                        value={ProjectSelect.SName}
                                         disabled
-                                        //fullWidth
-                                        //margin="normal"
                                         sx={{
                                             '& > :not(style)': { mr: 0, width: '30ch' },
                                         }}
                                     /><br></br>
                                     <TextField
                                         label="รหัสนักศึกษาคนที่ 2"
-                                        value={textField1}
-                                        onChange={(e) => setTextField1(e.target.value)}
+                                        defaultValue="รหัสนักศึกษาคนที่ 2"
+                                        value={ProjectSelect.SID2}
                                         disabled
-                                        //fullWidth
-                                        //margin="normal"
                                         sx={{
                                             '& > :not(style)': { mr: 5, ml: 5, mt: 3, width: '25ch' },
                                         }}
                                     />
                                     <TextField
                                         label="ชื่อ-สกุลนักศึกษาคนที่ 2"
-                                        value={textField2}
-                                        onChange={(e) => setTextField2(e.target.value)}
+                                        defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 2"
+                                        value={ProjectSelect.SName2}
+                                        // onChange={(e) => setTextField2(e.target.value)}
                                         disabled
                                         //fullWidth
                                         //margin="normal"
@@ -162,8 +214,9 @@ function DepartmentHeadScoreCSB02() {
                                     <p>อาจารย์ที่ปีกษา</p>
                                     <TextField
                                         label="ชื่ออาจารย์ที่ปรึกษา"
-                                        value={textField1}
-                                        onChange={(e) => setTextField1(e.target.value)}
+                                        defaultValue="ชื่ออาจารย์ที่ปรึกษา"
+                                        value={ProjectSelect.TName}
+                                        // onChange={(e) => setTextField1(e.target.value)}
                                         disabled
                                         //fullWidth
                                         //margin="normal"
