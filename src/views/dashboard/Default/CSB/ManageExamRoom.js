@@ -13,6 +13,8 @@ const ManageExamRoom = () => {
     const [numberOfFields, setNumberOfFields] = useState(0);
     const [numberOfFields2, setNumberOfFields2] = useState(0);
     const [dayOn1, setDayOn1] = useState(null);
+    const [timeOn1, setTimeOn1] = useState([]);
+    const [invalidTimes, setInvalidTimes] = useState([]);
 
     const handleInputChange = (event) => {
         setNumberOfFields(parseInt(event.target.value) || 0);
@@ -22,149 +24,103 @@ const ManageExamRoom = () => {
         setNumberOfFields2(parseInt(event.target.value) || 0);
     };
 
+    const [teacherValues, setTeacherValues] = useState(Array(numberOfFields).fill(''));
+    const [positionValues, setPositionValues] = useState(Array(numberOfFields).fill(''));
+    const [ProjectValues, setProjectValues] = useState(Array(numberOfFields2).fill(''));
 
-    const [timeOn1, setTimeOn1] = useState([]);
+    const handleSelectTeacher = (index) => (event) => {
+        const newTeacherValues = [...teacherValues];
+        newTeacherValues[index] = event.target.value;
+        setTeacherValues(newTeacherValues);
+    };
 
-    // const handleSave = () => {
-    //     // Save data logic here
-    //     // Clear the form
-    //     setOption('');
-    //     setRoom('');
-    //     setDayOn1('');
-    //     setTimeOn1('');
-    //     setNumberOfFields(0);
-    //     setNumberOfFields2(0);
-    // };
+    const handleSelectPosition = (index) => (event) => {
+        const newPositionValues = [...positionValues];
+        newPositionValues[index] = event.target.value;
+        setPositionValues(newPositionValues);
+    };
+
+    const handleSelectProject = (index) => (event) => {
+        const newProjectValues = [...ProjectValues];
+        newProjectValues[index] = event.target.value;
+        setProjectValues(newProjectValues);
+    };
+
+    const handleSelectTime = (index) => (event) => {
+        const newTime = event.target.value;
+        const newTimeOn1 = [...timeOn1];
+        newTimeOn1[index] = newTime;
+
+        // Check for duplicates
+        const timeCounts = newTimeOn1.reduce((acc, time) => {
+            acc[time] = (acc[time] || 0) + 1;
+            return acc;
+        }, {});
+        const newInvalidTimes = newTimeOn1.map((time, i) => timeCounts[time] > 1 && i !== newTimeOn1.indexOf(time));
+
+        setTimeOn1(newTimeOn1);
+        setInvalidTimes(newInvalidTimes);
+    };
+
+    const getFilteredTeachers = (index) => {
+        const selectedTeachers = teacherValues.filter((_, i) => i !== index);
+        return Teacher.filter((teacher) => !selectedTeachers.includes(teacher.ID));
+    };
+
+    const getFilteredPositions = (index) => {
+        const selectedPositions = positionValues.filter((_, i) => i !== index);
+        return positionData.filter((position) => !selectedPositions.includes(position.ID) || position.ID !== 'No1');
+    };
+
+    const getFilteredProject = (index) => {
+        const selectedProject = ProjectValues.filter((_, i) => i !== index);
+        return ProjectData.filter((ProjectData) => !selectedProject.includes(ProjectData.ID));
+    };
 
     const testData = [
-        {
-            "ID": "CSB01",
-            "Name": "สอบหัวข้อ"
-        },
-        {
-            "ID": "CSB02",
-            "Name": "สอบก้าวหน้า"
-        },
-        {
-            "ID": "CSB03",
-            "Name": "สอบป้องกัน"
-        }
+        { ID: 'CSB01', Name: 'สอบหัวข้อ' },
+        { ID: 'CSB02', Name: 'สอบก้าวหน้า' },
+        { ID: 'CSB03', Name: 'สอบป้องกัน' }
     ];
 
     const roomData = [
-        {
-            "ID": "78-618",
-        },
-        {
-            "ID": "78-618/2",
-        },
-        {
-            "ID": "78-619",
-        },
-        {
-            "ID": "78-621",
-        },
-        {
-            "ID": "78-617",
-        }
+        { ID: '78-618' },
+        { ID: '78-618/2' },
+        { ID: '78-619' },
+        { ID: '78-621' },
+        { ID: '78-617' }
     ];
 
     const Teacher = [
-        {
-            "ID": "NLP",
-            "Name": "ลือพล ไม่น่ารักเลย"
-        },
-        {
-            "ID": "SWK",
-            "Name": "สุวัชชัย ตัวตึง"
-        },
-        {
-            "ID": "KAB",
-            "Name": "คัณฑารัตน์ สุดละเอียด"
-        },
-        {
-            "ID": "CRL",
-            "Name": "เฉียบวุฒิ สุดจ้าบ"
-        },
-        {
-            "ID": "ARN",
-            "Name": "เอิญ ไม่ใจดี"
-        },
-        {
-            "ID": "TNA",
-            "Name": "ธณาภัทร ใจร้าย"
-        },
-        {
-            "ID": "BLP",
-            "Name": "เบญจพร ร้ายกาจ"
-        },
-        {
-            "ID": "NAT",
-            "Name": "ณัฐวุฒิ ช่วยด้วย"
-        },
-        {
-            "ID": "KOB",
-            "Name": "กอบเกียรติ อิหยังวะ"
-        },
-        {
-            "ID": "ANW",
-            "Name": "อนุสรณ์ หนีไป"
-        }
-    ]
+        { ID: 'NLP', Name: 'ลือพล ไม่น่ารักเลย' },
+        { ID: 'SWK', Name: 'สุวัชชัย ตัวตึง' },
+        { ID: 'KAB', Name: 'คัณฑารัตน์ สุดละเอียด' },
+        { ID: 'CRL', Name: 'เฉียบวุฒิ สุดจ้าบ' },
+        { ID: 'ARN', Name: 'เอิญ ไม่ใจดี' },
+        { ID: 'TNA', Name: 'ธณาภัทร ใจร้าย' },
+        { ID: 'BLP', Name: 'เบญจพร ร้ายกาจ' },
+        { ID: 'NAT', Name: 'ณัฐวุฒิ ช่วยด้วย' },
+        { ID: 'KOB', Name: 'กอบเกียรติ อิหยังวะ' },
+        { ID: 'ANW', Name: 'อนุสรณ์ หนีไป' }
+    ];
 
     const positionData = [
-        {
-            "ID": "No1",
-            "Name": "ประธาน"
-        },
-        {
-            "ID": "No2",
-            "Name": "กรรมการ"
-        }
+        { ID: 'No1', Name: 'ประธาน' },
+        { ID: 'No2', Name: 'กรรมการ' }
     ];
 
     const ProjectData = [
-        {
-            "ID": "SP1-01",
-            "Name": "การตรวจสอบจบ"
-        },
-        {
-            "ID": "SP1-02",
-            "Name": "การยื่นสอบปริญญานิพนจ์"
-        },
-        {
-            "ID": "SP1-03",
-            "Name": "โมเดลจำลองอะตอม"
-        },
-        {
-            "ID": "SP1-04",
-            "Name": "AIจับมนุษย์"
-        },
-        {
-            "ID": "SP1-05",
-            "Name": "โปรแกรมปลูกต้นไม้"
-        },
-        {
-            "ID": "SP1-06",
-            "Name": "โปรแกรมออกแบบการนำเสนอ"
-        },
-        {
-            "ID": "SP1-07",
-            "Name": "โปรแกรมคำนวณพื้นที่"
-        },
-        {
-            "ID": "SP1-08",
-            "Name": "การจัดการการสอบสำหรับ CSB"
-        },
-        {
-            "ID": "SP1-09",
-            "Name": "โปรแกรมจองตั๋วรถไฟ"
-        },
-        {
-            "ID": "SP1-10",
-            "Name": "เกมเอาตัวรอดในCS"
-        }
-    ]
+        { ID: 'SP1-01', Name: 'การตรวจสอบจบ' },
+        { ID: 'SP1-02', Name: 'การยื่นสอบปริญญานิพนจ์' },
+        { ID: 'SP1-03', Name: 'โมเดลจำลองอะตอม' },
+        { ID: 'SP1-04', Name: 'AIจับมนุษย์' },
+        { ID: 'SP1-05', Name: 'โปรแกรมปลูกต้นไม้' },
+        { ID: 'SP1-06', Name: 'โปรแกรมออกแบบการนำเสนอ' },
+        { ID: 'SP1-07', Name: 'โปรแกรมคำนวณพื้นที่' },
+        { ID: 'SP1-08', Name: 'การจัดการการสอบสำหรับ CSB' },
+        { ID: 'SP1-09', Name: 'โปรแกรมจองตั๋วรถไฟ' },
+        { ID: 'SP1-10', Name: 'เกมเอาตัวรอดในCS' }
+    ];
 
     return (
         <MainCard>
@@ -176,20 +132,10 @@ const ManageExamRoom = () => {
                             <Grid container spacing={2}>
                                 {/* Line 1: Select fields for option, room, and day */}
                                 <Grid item xs={12}>
-                                    <Typography
-                                        sx={{
-                                            marginLeft: 110
-                                        }}
-                                    >
+                                    <Typography sx={{ marginLeft: 110 }}>
                                         <h1>จัดห้องสอบ</h1>
                                     </Typography>
-                                    <Typography
-                                        sx={{
-                                            marginLeft: 25,
-                                            marginTop: 5
-                                        }}
-                                        fontSize={'20px'}
-                                    >
+                                    <Typography sx={{ marginLeft: 25, marginTop: 5 }} fontSize={'20px'}>
                                         รหัสการสอบ
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -197,8 +143,10 @@ const ManageExamRoom = () => {
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;
                                         ห้องสอบ
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -208,34 +156,23 @@ const ManageExamRoom = () => {
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         วันที่สอบ
                                     </Typography>
-                                    <FormControl
-                                        sx={{ mt: 1, ml: 25, minWidth: 120 }}
-                                    >
+                                    <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
                                         <InputLabel id="option-label">เลือกการสอบ</InputLabel>
                                         <Select
                                             label="รหัสการสอบ"
                                             id="option"
                                             value={option}
                                             onChange={(e) => setOption(e.target.value)}
-                                            //fullWidth
                                             sx={{ minWidth: 300 }}
                                         >
-                                            {/* <MenuItem value="option1">CSB01 : สอบหัวข้อ</MenuItem>
-                                            <MenuItem value="option2">CSB02 : สอบก้าวหน้า</MenuItem>
-                                            <MenuItem value="option3">CSB03 : สอบป้องกัน</MenuItem> */}
                                             {testData.map((testData) => (
-                                                    <MenuItem
-                                                        key={testData.ID}
-                                                        value={testData.ID}
-                                                    >
-                                                        {testData.ID+" : "+testData.Name}
-                                                    </MenuItem>
-                                                ))}
+                                                <MenuItem key={testData.ID} value={testData.ID}>
+                                                    {testData.ID + ' : ' + testData.Name}
+                                                </MenuItem>
+                                            ))}
                                         </Select>
                                     </FormControl>
-                                    <FormControl
-                                        sx={{ mt: 1, ml: 25, minWidth: 120 }}
-                                    >
+                                    <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
                                         <InputLabel id="room-label">ห้องสอบ</InputLabel>
                                         <Select
                                             label="ห้องสอบ"
@@ -245,22 +182,15 @@ const ManageExamRoom = () => {
                                             sx={{ minWidth: 300 }}
                                         >
                                             {roomData.map((roomData) => (
-                                                    <MenuItem
-                                                        key={roomData.ID}
-                                                        value={roomData.ID}
-                                                    >
-                                                        {roomData.ID}
-                                                    </MenuItem>
-                                                ))}
+                                                <MenuItem key={roomData.ID} value={roomData.ID}>
+                                                    {roomData.ID}
+                                                </MenuItem>
+                                            ))}
                                         </Select>
                                     </FormControl>
-                                    <FormControl
-                                        sx={{ ml: 25, minWidth: 120 }}
-                                    >
+                                    <FormControl sx={{ ml: 25, minWidth: 120 }}>
                                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                            <DemoContainer
-                                                components={['DatePicker']}
-                                            >
+                                            <DemoContainer components={['DatePicker']}>
                                                 <DatePicker
                                                     label="วันที่สอบ"
                                                     value={dayOn1}
@@ -272,13 +202,7 @@ const ManageExamRoom = () => {
                                 </Grid>
                                 {/* Line 2: Text field for number of fields */}
                                 <Grid item xs={12}>
-                                    <Typography
-                                        sx={{
-                                            marginLeft: 25,
-                                            marginTop: 3
-                                        }}
-                                        fontSize={'20px'}
-                                    >
+                                    <Typography sx={{ marginLeft: 25, marginTop: 3 }} fontSize={'20px'}>
                                         จำนวนกรรมการสอบ
                                     </Typography>
                                     <TextField
@@ -292,14 +216,9 @@ const ManageExamRoom = () => {
                                 {/* Line 3: Show select fields based on the input number */}
                                 {Array.from({ length: numberOfFields }).map((_, index) => (
                                     <Grid item xs={12} key={index}>
-                                        <Typography
-                                            sx={{
-                                                marginLeft: 25,
-                                                marginTop: 3
-                                            }}
-                                            fontSize={'20px'}
-                                        >
+                                        <Typography sx={{ marginLeft: 25, marginTop: 3 }} fontSize={'20px'}>
                                             รายชื่อกรรมการสอบ
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -314,13 +233,12 @@ const ManageExamRoom = () => {
                                                 label="รายชื่อกรรมการสอบ"
                                                 id={`id-${index}`}
                                                 sx={{ minWidth: 300 }}
+                                                value={teacherValues[index]}
+                                                onChange={handleSelectTeacher(index)}
                                             >
-                                                {Teacher.map((Teacher) => (
-                                                    <MenuItem
-                                                        key={Teacher.ID}
-                                                        value={Teacher.ID}
-                                                    >
-                                                        {Teacher.ID+" "+Teacher.Name}
+                                                {getFilteredTeachers(index).map((teacher) => (
+                                                    <MenuItem key={teacher.ID} value={teacher.ID}>
+                                                        {teacher.ID + ' ' + teacher.Name}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
@@ -331,12 +249,11 @@ const ManageExamRoom = () => {
                                                 label="ตำแหน่ง"
                                                 id={`name-${index}`}
                                                 sx={{ minWidth: 300 }}
+                                                value={positionValues[index]}
+                                                onChange={handleSelectPosition(index)}
                                             >
-                                                {positionData.map((positionData) => (
-                                                    <MenuItem
-                                                        key={positionData.Name}
-                                                        value={positionData.Name}
-                                                    >
+                                                {getFilteredPositions(index).map((positionData) => (
+                                                    <MenuItem key={positionData.ID} value={positionData.ID}>
                                                         {positionData.Name}
                                                     </MenuItem>
                                                 ))}
@@ -346,13 +263,7 @@ const ManageExamRoom = () => {
                                 ))}
 
                                 <Grid item xs={12}>
-                                    <Typography
-                                        sx={{
-                                            marginLeft: 25,
-                                            marginTop: 3
-                                        }}
-                                        fontSize={'20px'}
-                                    >
+                                    <Typography sx={{ marginLeft: 25, marginTop: 3 }} fontSize={'20px'}>
                                         จำนวนโครงงานที่จะสอบ
                                     </Typography>
                                     <TextField
@@ -366,20 +277,15 @@ const ManageExamRoom = () => {
                                 {/* Line 3: Show select fields based on the input number */}
                                 {Array.from({ length: numberOfFields2 }).map((_, index) => (
                                     <Grid item xs={12} key={index}>
-                                        <Typography
-                                            sx={{
-                                                marginLeft: 25,
-                                                marginTop: 3
-                                            }}
-                                            fontSize={'20px'}
-                                        >
+                                        <Typography sx={{ marginLeft: 25, marginTop: 3 }} fontSize={'20px'}>
                                             รายชื่อโครงงาน
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             เวลาสอบ
                                         </Typography>
                                         <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
@@ -388,35 +294,38 @@ const ManageExamRoom = () => {
                                                 label="รายชื่อโครงงาน"
                                                 id={`id-${index}`}
                                                 sx={{ minWidth: 300 }}
+                                                value={ProjectValues[index]}
+                                                onChange={handleSelectProject(index)}
                                             >
-                                                {ProjectData.map((ProjectData) => (
-                                                    <MenuItem
-                                                        key={ProjectData.ID}
-                                                        value={ProjectData.ID}
-                                                    >
-                                                        {ProjectData.ID+" : "+ProjectData.Name}
+                                                {getFilteredProject(index).map((ProjectData) => (
+                                                    <MenuItem key={ProjectData.ID} value={ProjectData.ID}>
+                                                        {ProjectData.ID + ' ' + ProjectData.Name}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
                                         </FormControl>
                                         <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
-                                            {/* <InputLabel id={`name-label-${index}`}>เวลาสอบ</InputLabel> */}
                                             <TextField
                                                 label="เวลาสอบ"
                                                 id={`time-${index}`}
                                                 type="time"
-                                                value={timeOn1[index]}
-                                                onChange={(newValue) => setTimeOn1(newValue)}
+                                                value={timeOn1[index] || ''}
+                                                onChange={handleSelectTime(index)}
                                                 InputLabelProps={{
-                                                    shrink: true,
+                                                    shrink: true
                                                 }}
-                                                sx={{ minWidth: 300 }}
+                                                sx={{
+                                                    minWidth: 300,
+                                                    border: invalidTimes[index] ? '3px solid red' : '1px solid #ccc'
+                                                }}
                                             />
                                         </FormControl>
                                     </Grid>
                                 ))}
                                 <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                                    <Button variant="contained" onClick={'#'}>Save</Button>
+                                    <Button variant="contained" onClick={'#'}>
+                                        Save
+                                    </Button>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -428,3 +337,4 @@ const ManageExamRoom = () => {
 };
 
 export default ManageExamRoom;
+
