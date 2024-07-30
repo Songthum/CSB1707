@@ -26,11 +26,11 @@ function CSB01() {
     const [StudentSelect2, setStudentSelect2] = useState('');
 
     const handleChange = (event) => {
-        setStudentSelect(names.find(person => person.ID === event.target.value));
+        setStudentSelect(Student.find(person => person.ID === event.target.value));
     };
 
     const handleChange2 = (event) => {
-        setStudentSelect2(names.find(person => person.ID === event.target.value));
+        setStudentSelect2(Student.find(person => person.ID === event.target.value));
     };
 
     const [openDialog, setOpenDialog] = useState(false);
@@ -50,7 +50,7 @@ function CSB01() {
         setSelectedValue(e.target.value);
     };
 
-    const names = [
+    const Student = [
         {
             "ID": "6304062620061",
             "Name": "ณัชริกา กันทะสอน"
@@ -211,7 +211,7 @@ function CSB01() {
                                                         {/* <MenuItem value={15}>6304062620061</MenuItem>
                                                         <MenuItem value={14}>6304062620077</MenuItem>
                                                         <MenuItem value={13}>6304062620023</MenuItem> */}
-                                                        {names.filter(name => name.ID !== StudentSelect2.ID).map((name) => (
+                                                        {Student.filter(name => name.ID !== StudentSelect2.ID).map((name) => (
                                                             <MenuItem
                                                                 key={name.ID}
                                                                 value={name.ID}
@@ -265,7 +265,7 @@ function CSB01() {
                                                         label="รหัสนักศึกษา"
                                                         onChange={handleChange2}
                                                     >
-                                                        {names.filter(name => name.ID !== StudentSelect.ID).map((name) => (
+                                                        {Student.filter(name => name.ID !== StudentSelect.ID).map((name) => (
                                                             <MenuItem
                                                                 key={name.ID}
                                                                 value={name.ID}

@@ -7,7 +7,7 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
 function ListNameStudentS1() {
-    const initialChecklistData = [
+    const listStudentS1 = [
         { StudentID: '6304062620022', name: 'สาวสวย บ้านนา', StatusProject: 'กำลังดำเนินการ' },
         { StudentID: '6304062620032', name: 'หนุ่มหล่อ ชาวสวน', StatusProject: 'สำเร็จ' },
         { StudentID: '6304062620043', name: 'ใจดี ใจงาม', StatusProject: 'ไม่สำเร็จ' },
@@ -23,7 +23,7 @@ function ListNameStudentS1() {
         { StudentID: "6304062620070", name: "ไม่มี ตังค์ค่า", StatusProject: 'กำลังดำเนินการ' }
     ];
 
-    const checklistData = initialChecklistData.map(item => ({
+    const checklistData = listStudentS1.map(item => ({
         id: uuidv4(),
         ...item
     }));

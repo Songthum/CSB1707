@@ -17,10 +17,6 @@ import { gridSpacing } from 'store/constant';
 import { Container } from '@mui/material';
 
 function ManageExamSP() {
-    const options = [
-        'Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5',
-        'Option 6', 'Option 7', 'Option 8', 'Option 9', 'Option 10'
-    ];
 
     // State for time fields
     const [timeOn1, setTimeOn1] = useState('');
@@ -60,7 +56,7 @@ function ManageExamSP() {
 
     // const formatTestData = testData.map(item => `${item.ID} : ${item.Name}`);
 
-    const [selectedValues, setSelectedValues] = useState({ first: '', second: '', third: '' });
+    // const [selectedValues, setSelectedValues] = useState({ first: '', second: '', third: '' });
 
     // const handleChange = (event, field) => {
     //     setSelectedValues({ ...selectedValues, [field]: event.target.value });
