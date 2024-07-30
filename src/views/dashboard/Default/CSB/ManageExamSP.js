@@ -14,12 +14,13 @@ import FormControl from '@mui/material/FormControl';
 import { Grid } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
+import { Container } from '@mui/material';
 
 function ManageExamSP() {
-    // State for select fields
-    const [selectedOption1, setSelectedOption1] = useState('');
-    const [selectedOption2, setSelectedOption2] = useState('');
-    const [selectedOption3, setSelectedOption3] = useState('');
+    const options = [
+        'Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5',
+        'Option 6', 'Option 7', 'Option 8', 'Option 9', 'Option 10'
+    ];
 
     // State for time fields
     const [timeOn1, setTimeOn1] = useState('');
@@ -51,6 +52,26 @@ function ManageExamSP() {
         console.log("Edit button clicked");
     };
 
+    // const testData = [
+    //     { ID: 'CSB01', Name: 'สอบหัวข้อ' },
+    //     { ID: 'CSB02', Name: 'สอบก้าวหน้า' },
+    //     { ID: 'CSB03', Name: 'สอบป้องกัน' }
+    // ];
+
+    // const formatTestData = testData.map(item => `${item.ID} : ${item.Name}`);
+
+    const [selectedValues, setSelectedValues] = useState({ first: '', second: '', third: '' });
+
+    // const handleChange = (event, field) => {
+    //     setSelectedValues({ ...selectedValues, [field]: event.target.value });
+    // };
+
+    // const getFilteredOptions = (currentField) => {
+    //     const selectedOptions = Object.values(selectedValues).filter((val, idx) => idx !== currentField);
+    //     return options.filter(option => !selectedOptions.includes(option));
+    // };
+
+
     return (
         <MainCard>
             <Grid container spacing={gridSpacing}>
@@ -58,7 +79,7 @@ function ManageExamSP() {
                     <Grid container alignItems="center" justifyContent="space-between">
                         <Grid item>
                             <Grid container direction="column" spacing={1}></Grid>
-                            <Box sx={{ marginLeft: 65 }}>
+                            <Box sx={{ marginLeft: 40 }}>
                                 <Typography sx={{ marginLeft: 30 }}><h1>จัดการการยื่นสอบ</h1></Typography>
 
                                 {/* Select fields */}
@@ -91,23 +112,16 @@ function ManageExamSP() {
                                         เวล่ที่ปิด
                                     </Typography>
                                     <FormControl>
-                                        <InputLabel id="selectedOption1">Select Option 1</InputLabel>
-                                        <Select
-                                            labelId="selectedOption1"
-                                            value={selectedOption1}
-                                            onChange={(e) => setSelectedOption1(e.target.value)}
-                                            // fullWidth
-                                            label="Select Option 1"
-                                            margin="normal"
+                                        <TextField
+                                            disabled
+                                            id="CSB01"
+                                            label="Disabled"
+                                            defaultValue="การสอบหัวข้อ"
                                             sx={{
                                                 minWidth: 250,
                                                 marginRight: 10,
                                             }}
-                                        >
-                                            <MenuItem value="">Select Option 1</MenuItem>
-                                            <MenuItem value="Option 1-1">Option 1-1</MenuItem>
-                                            <MenuItem value="Option 1-2">Option 1-2</MenuItem>
-                                        </Select>
+                                        />
                                     </FormControl>
 
                                     <TextField
@@ -193,23 +207,16 @@ function ManageExamSP() {
                                         เวล่ที่ปิด
                                     </Typography>
                                     <FormControl>
-                                        <InputLabel id="selectedOption1">Select Option 1</InputLabel>
-                                        <Select
-                                            labelId="selectedOption1"
-                                            value={selectedOption2}
-                                            onChange={(e) => setSelectedOption2(e.target.value)}
-                                            // fullWidth
-                                            label="Select Option 2"
-                                            margin="normal"
+                                        <TextField
+                                            disabled
+                                            id="CSB02"
+                                            label="Disabled"
+                                            defaultValue="การสอบก้าวหน้า"
                                             sx={{
                                                 minWidth: 250,
                                                 marginRight: 10,
                                             }}
-                                        >
-                                            <MenuItem value="">Select Option 2</MenuItem>
-                                            <MenuItem value="Option 2-1">Option 2-1</MenuItem>
-                                            <MenuItem value="Option 2-2">Option 2-2</MenuItem>
-                                        </Select>
+                                        />
                                     </FormControl>
 
                                     <TextField
@@ -295,23 +302,16 @@ function ManageExamSP() {
                                         เวล่ที่ปิด
                                     </Typography>
                                     <FormControl>
-                                        <InputLabel id="selectedOption1">Select Option 1</InputLabel>
-                                        <Select
-                                            labelId="selectedOption1"
-                                            value={selectedOption3}
-                                            onChange={(e) => setSelectedOption3(e.target.value)}
-                                            // fullWidth
-                                            label="Select Option 3"
-                                            margin="normal"
+                                        <TextField
+                                            disabled
+                                            id="CSB03"
+                                            label="Disabled"
+                                            defaultValue="การสอบป้องกัน"
                                             sx={{
                                                 minWidth: 250,
                                                 marginRight: 10,
                                             }}
-                                        >
-                                            <MenuItem value="">Select Option 3</MenuItem>
-                                            <MenuItem value="Option 3-1">Option 3-1</MenuItem>
-                                            <MenuItem value="Option 3-2">Option 3-2</MenuItem>
-                                        </Select>
+                                        />
                                     </FormControl>
                                     <TextField
                                         label="Time Field 1"
@@ -381,6 +381,7 @@ function ManageExamSP() {
                 </Grid>
             </Grid>
         </MainCard>
+
     );
 }
 
