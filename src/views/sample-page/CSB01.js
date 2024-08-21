@@ -20,17 +20,47 @@ import Dialog from '@mui/material/Dialog';
 import { Grid } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
+import { Value } from 'sass';
 
 function CSB01() {
     const [StudentSelect, setStudentSelect] = useState('');
     const [StudentSelect2, setStudentSelect2] = useState('');
 
+    const [selectTeacher, setSelectTeacher] = useState('');
+
+    const [selectedValues, setSelectedValues] = useState({
+        networks: false,
+        graphics: false,
+        database: false,
+        ai: false,
+        games: false,
+    });
+
     const handleChange = (event) => {
-        setStudentSelect(Student.find(person => person.ID === event.target.value));
+        setStudentSelect(Students.find(person => person.ID === event.target.value));
     };
 
     const handleChange2 = (event) => {
-        setStudentSelect2(Student.find(person => person.ID === event.target.value));
+        setStudentSelect2(Students.find(person => person.ID === event.target.value));
+    };
+
+    const handleSelectTeacherChange = (event) => {
+        // const value = event.target.value;
+        setSelectTeacher(Teachers.find(person => person.ID === event.target.value));
+        console.log(Teachers.find(person => person.ID === event.target.value)); // Log the selected teacher ID
+    };
+
+    const handleChangeSelectObject = (event) => {
+        const { name, checked } = event.target;
+
+        // Update the state of the corresponding checkbox
+        setSelectedValues((prevValues) => ({
+            ...prevValues,
+            [name]: checked,
+        }));
+
+        // Log the updated state
+        console.log(`${name} is now ${checked ? 'selected' : 'deselected'}`);
     };
 
     const [openDialog, setOpenDialog] = useState(false);
@@ -50,7 +80,7 @@ function CSB01() {
         setSelectedValue(e.target.value);
     };
 
-    const Student = [
+    const Students = [
         {
             "ID": "6304062620061",
             "Name": "ณัชริกา กันทะสอน"
@@ -93,7 +123,7 @@ function CSB01() {
         }
     ];
 
-    const Teacher = [
+    const Teachers = [
         {
             "ID": "NLP",
             "Name": "ลือพล ไม่น่ารักเลย"
@@ -211,19 +241,19 @@ function CSB01() {
                                                         {/* <MenuItem value={15}>6304062620061</MenuItem>
                                                         <MenuItem value={14}>6304062620077</MenuItem>
                                                         <MenuItem value={13}>6304062620023</MenuItem> */}
-                                                        {Student.filter(name => name.ID !== StudentSelect2.ID).map((name) => (
+                                                        {Students.filter(student => student.ID !== StudentSelect2.ID).map((student) => (
                                                             <MenuItem
-                                                                key={name.ID}
-                                                                value={name.ID}
+                                                                key={student.ID}
+                                                                value={student.ID}
                                                             >
-                                                                {name.ID}
+                                                                {student.ID}
                                                             </MenuItem>
                                                         ))}
                                                     </Select>
                                                 </FormControl>
                                                 <TextField
                                                     disabled
-                                                    id="Name"
+                                                    id="Name1"
                                                     label="ชื่อ - สกุล"
                                                     defaultValue="ชื่อ - สกุล"
                                                     value={StudentSelect.Name}
@@ -265,19 +295,19 @@ function CSB01() {
                                                         label="รหัสนักศึกษา"
                                                         onChange={handleChange2}
                                                     >
-                                                        {Student.filter(name => name.ID !== StudentSelect.ID).map((name) => (
+                                                        {Students.filter(student => student.ID !== StudentSelect.ID).map((student) => (
                                                             <MenuItem
-                                                                key={name.ID}
-                                                                value={name.ID}
+                                                                key={student.ID}
+                                                                value={student.ID}
                                                             >
-                                                                {name.ID}
+                                                                {student.ID}
                                                             </MenuItem>
                                                         ))}
                                                     </Select>
                                                 </FormControl>
                                                 <TextField
                                                     disabled
-                                                    id="Name"
+                                                    id="Name2"
                                                     label="ชื่อ - สกุล"
                                                     defaultValue="ชื่อ - สกุล"
                                                     value={StudentSelect2.Name}
@@ -333,6 +363,7 @@ function CSB01() {
                                             row
                                             aria-labelledby="demo-row-radio-buttons-group-label"
                                             name="row-radio-buttons-group"
+                                            id="selectHaveOrDon't"
                                             value={selectedValue}
                                             onChange={handleRadioChange}
                                         >
@@ -348,16 +379,22 @@ function CSB01() {
                                                 marginLeft: 55,
                                             }}
                                         >
-                                            <Select defaultValue="" displayEmpty>
+                                            <Select
+                                                id="teacher-select"
+                                                value={selectTeacher.ID}
+                                                defaultValue=""
+                                                displayEmpty
+                                                onChange={handleSelectTeacherChange}
+                                            >
                                                 <MenuItem value="" disabled>
                                                     รายชื่ออาจารย์ที่ปรึกษา
                                                 </MenuItem>
-                                                {Teacher.map((Teacher) => (
+                                                {Teachers.map((Teacher) => (
                                                     <MenuItem
                                                         key={Teacher.ID}
                                                         value={Teacher.ID}
                                                     >
-                                                        {Teacher.ID+" "+Teacher.Name}
+                                                        {Teacher.ID + " " + Teacher.Name}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
@@ -375,18 +412,63 @@ function CSB01() {
                                         โครงงานนี้จัดอยู่ในประเภท
                                     </Typography>
                                     <FormGroup
-                                        fontSize='18px'
+                                        id="object-select"
+                                        fontSize="18px"
                                         sx={{
                                             marginTop: 0,
                                             marginLeft: 55,
                                         }}
                                     >
-                                        <FormControlLabel control={<Checkbox />} label="Networks & Data Communications" />
-                                        <FormControlLabel control={<Checkbox />} label="Graphics & Animation" />
-                                        <FormControlLabel control={<Checkbox />} label="Database & Web" />
-                                        <FormControlLabel control={<Checkbox />} label="Artificial Intelligence" />
-                                        <FormControlLabel control={<Checkbox />} label="Games" />
-                                        <FormControlLabel control={<Checkbox />} label="Other" />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={selectedValues.networks}
+                                                    onChange={handleChangeSelectObject}
+                                                    name="networks"
+                                                />
+                                            }
+                                            label="Networks & Data Communications"
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={selectedValues.graphics}
+                                                    onChange={handleChangeSelectObject}
+                                                    name="graphics"
+                                                />
+                                            }
+                                            label="Graphics & Animation"
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={selectedValues.database}
+                                                    onChange={handleChangeSelectObject}
+                                                    name="database"
+                                                />
+                                            }
+                                            label="Database & Web"
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={selectedValues.ai}
+                                                    onChange={handleChangeSelectObject}
+                                                    name="ai"
+                                                />
+                                            }
+                                            label="Artificial Intelligence"
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={selectedValues.games}
+                                                    onChange={handleChangeSelectObject}
+                                                    name="games"
+                                                />
+                                            }
+                                            label="Games"
+                                        />
                                     </FormGroup>
                                 </div>
                                 <div>
@@ -410,7 +492,7 @@ function CSB01() {
                                                 marginTop: 0,
                                                 marginLeft: 55,
                                             }}
-                                            id="outlined-multiline-flexible"
+                                            id="details"
                                             label=""
                                             multiline
                                             maxRows={8}
