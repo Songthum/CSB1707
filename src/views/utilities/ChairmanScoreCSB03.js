@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
@@ -23,74 +23,89 @@ import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
 
 function ChairmanScoreCSB03() {
-
     const [ProjectSelect, setProjectSelect] = useState('');
     const [ProjectSelect2, setProjectSelect2] = useState('');
-    const [selectedOption, setSelectedOption] = useState('');
-    const [textField1, setTextField1] = useState('');
-    const [textField2, setTextField2] = useState('');
-    const [textField3, setTextField3] = useState('');
     const [editingRowId, setEditingRowId] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
 
     const project = [
-        {
-          "ID": "001",
-          "Name": "ระบบตรวจสอบการวัดพื้นที่",
-          "SID": "6304062620061",
-          "SName": "ณัชริกา กันทะสอน",
-          "SID2": "6304062620062",
-          "SName2": "ใจดี ยืมเงิน",
-          "TID": "NLP",
-          "TName": "ลือพล ไม่น่ารักเลย"
-        },
-        {
-          "ID": "002",
-          "Name": "ระบบจำลองโมเดล",
-          "SID": "6304062620063",
-          "SName": "สบายดี สบายใจ",
-          "SID2": "6304062620064",
-          "SName2": "สุดสวย สุดหล่อ",
-          "TID": "SWK",
-          "TName": "สุวัชชัย ตัวตึง"
-        },
-        {
-          "ID": "003",
-          "Name": "เว็บไซต์ขายของ",
-          "SID": "6304062620065",
-          "SName": "ไอ่กล้อง ไอ่อ้วน",
-          "SID2": "6304062620066",
-          "SName2": "แมวเหมียว น่ารัก",
-          "TID": "KAB",
-          "TName": "คัณฑารัตน์ สุดละเอียด"
-        },
-        {
-          "ID": "004",
-          "Name": "เว็บไซต์ขายที่ดิน",
-          "SID": "6304062620067",
-          "SName": "มะหมา สุดหล่อ",
-          "SID2": "6304062620068",
-          "SName2": "หนูน้อย น่ารัก",
-          "TID": "CRL",
-          "TName": "เฉียบวุฒิ สุดจ้าบ"
-    
-        },
-        {
-          "ID": "005",
-          "Name": "เกมส์ปลูกผัก",
-          "SID": "6304062620069",
-          "SName": "สวัสดีครับ ผมนวย",
-          "SID2": "6304062620070",
-          "SName2": "ไม่มี ตังค์ค่า",
-          "TID": "ARN",
-          "TName": "เอิญ ไม่ใจดี"
-        }
-    ];
+                {
+                  "ID": "001",
+                  "Name": "ระบบตรวจสอบการวัดพื้นที่",
+                  "SID": "6304062620061",
+                  "SName": "ณัชริกา กันทะสอน",
+                  "SID2": "6304062620062",
+                  "SName2": "ใจดี ยืมเงิน",
+                  "TID": "NLP",
+                  "TName": "ลือพล ไม่น่ารักเลย"
+                },
+                {
+                  "ID": "002",
+                  "Name": "ระบบจำลองโมเดล",
+                  "SID": "6304062620063",
+                  "SName": "สบายดี สบายใจ",
+                  "SID2": "6304062620064",
+                  "SName2": "สุดสวย สุดหล่อ",
+                  "TID": "SWK",
+                  "TName": "สุวัชชัย ตัวตึง"
+                },
+                {
+                  "ID": "003",
+                  "Name": "เว็บไซต์ขายของ",
+                  "SID": "6304062620065",
+                  "SName": "ไอ่กล้อง ไอ่อ้วน",
+                  "SID2": "6304062620066",
+                  "SName2": "แมวเหมียว น่ารัก",
+                  "TID": "KAB",
+                  "TName": "คัณฑารัตน์ สุดละเอียด"
+                },
+                {
+                  "ID": "004",
+                  "Name": "เว็บไซต์ขายที่ดิน",
+                  "SID": "6304062620067",
+                  "SName": "มะหมา สุดหล่อ",
+                  "SID2": "6304062620068",
+                  "SName2": "หนูน้อย น่ารัก",
+                  "TID": "CRL",
+                  "TName": "เฉียบวุฒิ สุดจ้าบ"
+            
+                },
+                {
+                  "ID": "005",
+                  "Name": "เกมส์ปลูกผัก",
+                  "SID": "6304062620069",
+                  "SName": "สวัสดีครับ ผมนวย",
+                  "SID2": "6304062620070",
+                  "SName2": "ไม่มี ตังค์ค่า",
+                  "TID": "ARN",
+                  "TName": "เอิญ ไม่ใจดี"
+                }
+            ];
+        
 
     const handleNameChange = (id, value) => {
+        // ค้นหารายการที่ผู้ใช้กำลังแก้ไข
+        const item = data.find(item => item.id === id);
+        
+        // ตรวจสอบว่าเป็นตัวเลขและไม่เกินคะแนนเต็ม
+        if (/^\d*$/.test(value) && Number(value) <= Number(item.fullscores)) {
+            setData(prevData =>
+                prevData.map(item =>
+                    item.id === id ? { ...item, score: value } : item
+                )
+            );
+            
+        }
+    };
+
+    const calculateTotalScore = () => {
+        const totalScore = data
+            .filter(item => item.id >= 1 && item.id <= 7)
+            .reduce((acc, curr) => acc + Number(curr.score), 0);
+
         setData(prevData =>
             prevData.map(item =>
-                item.id === id ? { ...item, score: value } : item
+                item.name === 'คะแนนรวม' ? { ...item, score: totalScore } : item
             )
         );
     };
@@ -126,6 +141,9 @@ function ChairmanScoreCSB03() {
         { id: 7, name: 'สรุป/วิจารณ์/การพัฒนาต่อในอนาคต', fullscores: '5', score: '3' },
         { name: 'คะแนนรวม', fullscores: '80', score: '70' },
     ]);
+    useEffect(() => {
+        calculateTotalScore();
+    }, [data]);
 
     return (
         <MainCard>
@@ -134,7 +152,7 @@ function ChairmanScoreCSB03() {
                     <Grid container alignItems="center" justifyContent="space-between">
                         <Grid item>
                             <Box fontSize='18px' sx={{ marginTop: 5 }}>
-                                <h1>แบบประเมินโครงงานพิเศษ 2 (ปริญญานืพนธ์)</h1>
+                                <h1>แบบประเมินโครงงานพิเศษ 2 (ปริญญานิพนธ์)</h1>
                                 <p>
                                     รหัสโครงงาน
                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -145,31 +163,26 @@ function ChairmanScoreCSB03() {
                                     <InputLabel id="ProjectID-select-label">ProjectID</InputLabel>
                                     <Select
                                         labelId="ProjectID-select-label"
-                                        value={ProjectSelect.ID}
+                                        value={ProjectSelect.ID || ''}
                                         onChange={handleChange}
                                         label="ProjectID"
                                         margin="normal"
                                         sx={{ minWidth: 150 }}
-                                        // disabled
                                     >
-                                        {/* <MenuItem value="SP1-01">SP1-01</MenuItem>
-                                        <MenuItem value="SP1-02">SP1-02</MenuItem>
-                                        <MenuItem value="SP1-03">SP1-03</MenuItem> */}
-                                        {project.filter(project => project.ID !== ProjectSelect2.ID).map((project) => (
-                                      <MenuItem
-                                        key={project.ID}
-                                        value={project.ID}
-                                      >
-                                        {project.ID}
-                                      </MenuItem>
-                                    ))}
+                                        {project.filter(p => p.ID !== ProjectSelect2.ID).map((proj) => (
+                                            <MenuItem
+                                                key={proj.ID}
+                                                value={proj.ID}
+                                            >
+                                                {proj.ID}
+                                            </MenuItem>
+                                        ))}
                                     </Select>
                                 </FormControl>
                                 <TextField
                                     label="ชื่อโครงงาน"
                                     defaultValue="ชื่อโครงงาน"
-                                    value={ProjectSelect.Name}
-                                    // onChange={(e) => setTextField3(e.target.value)}
+                                    value={ProjectSelect.Name || ''}
                                     disabled
                                     sx={{ '& > :not(style)': { ml: 5, width: '50ch' } }}
                                 />
@@ -178,99 +191,105 @@ function ChairmanScoreCSB03() {
                                 <TextField
                                     label="รหัสนักศึกษาคนที่ 1"
                                     defaultValue="รหัสนักศึกษาคนที่ 1"
-                                    value={ProjectSelect.SID}
-                                    // onChange={(e) => setTextField1(e.target.value)}
+                                    value={ProjectSelect.SID || ''}
                                     disabled
                                     sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
                                 />
                                 <TextField
                                     label="ชื่อ-สกุลนักศึกษาคนที่ 1"
                                     defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 1"
-                                    value={ProjectSelect.SName}
-                                    // onChange={(e) => setTextField2(e.target.value)}
+                                    value={ProjectSelect.SName || ''}
                                     disabled
                                     sx={{ '& > :not(style)': { mr: 0, width: '30ch' } }}
                                 /><br />
                                 <TextField
                                     label="รหัสนักศึกษาคนที่ 2"
                                     defaultValue="รหัสนักศึกษาคนที่ 2"
-                                    value={ProjectSelect.SID2}
-                                    // onChange={(e) => setTextField1(e.target.value)}
+                                    value={ProjectSelect.SID2 || ''}
                                     disabled
                                     sx={{ '& > :not(style)': { mr: 5, ml: 5, mt: 3, width: '25ch' } }}
                                 />
                                 <TextField
                                     label="ชื่อ-สกุลนักศึกษาคนที่ 2"
                                     defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 2"
-                                    value={ProjectSelect.SName2}
-                                    // onChange={(e) => setTextField2(e.target.value)}
+                                    value={ProjectSelect.SName2 || ''}
                                     disabled
                                     sx={{ '& > :not(style)': { mt: 3, width: '30ch' } }}
                                 />
-                                <p>อาจารย์ที่ปีกษา</p>
+                                <p>อาจารย์ที่ปรึกษา</p>
                                 <TextField
                                     label="ชื่ออาจารย์ที่ปรึกษา"
                                     defaultValue="ชื่ออาจารย์ที่ปรึกษา"
-                                    value={ProjectSelect.TName}
-                                    // onChange={(e) => setTextField1(e.target.value)}
+                                    value={ProjectSelect.TName || ''}
                                     disabled
                                     sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
                                 />
                             </Box>
-                            <h2>ตารางลงคะแนนสำหรับกรรมการสอบ</h2>
-                            <TableContainer component={Paper}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>ลำดับที่</TableCell>
-                                            <TableCell>เกณฑ์พิจารณา</TableCell>
-                                            <TableCell>คะแนนเต็ม</TableCell>
-                                            <TableCell>ลงคะแนน</TableCell>
-                                            <TableCell>แก้ไข</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {data.map((item) => (
-                                            <TableRow key={item.id}>
-                                                <TableCell>{item.id}</TableCell>
-                                                <TableCell>{item.name}</TableCell>
-                                                <TableCell>{item.fullscores}</TableCell>
-                                                <TableCell>
-                                                    {editingRowId === item.id ? (
-                                                        <TextField
-                                                            value={item.score}
-                                                            onChange={(e) => handleNameChange(item.id, e.target.value)}
-                                                        />
-                                                    ) : (
-                                                        item.score
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {editingRowId === item.id ? (
-                                                        <Button variant="outlined" onClick={() => handleSaveClick()}>บันทึก</Button>
-                                                    ) : (
-                                                        <Button variant="outlined" onClick={() => handleEditClick(item.id)}>แก้ไข</Button>
-                                                    )}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                                <Dialog open={openDialog} onClose={handleCloseDialog}>
-                                    <DialogTitle>ทำการบันทึกสำเร็จ !!</DialogTitle>
-                                    <DialogContent>
-                                        <p>รอการตรวจสอบจากเจ้าหน้าที่</p>
-                                    </DialogContent>
-                                    <DialogActions>
-                                        <Button onClick={handleCloseDialog}>Close</Button>
-                                    </DialogActions>
-                                </Dialog>
-                            </TableContainer>
-                            <Stack alignItems="center" justifyContent="center" fontSize='18px' sx={{ marginTop: 3 }}>
-                                <Button variant="contained" onClick={handleSubmit}>
-                                    อนุมัติคะแนน
-                                </Button>
-                            </Stack>
+
+                            {ProjectSelect && (
+                                <>
+                                    <h2>ตารางลงคะแนนสำหรับกรรมการสอบ</h2>
+                                    <TableContainer component={Paper}>
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>ลำดับที่</TableCell>
+                                                    <TableCell>เกณฑ์พิจารณา</TableCell>
+                                                    <TableCell>คะแนนเต็ม</TableCell>
+                                                    <TableCell>ลงคะแนน</TableCell>
+                                                    <TableCell>แก้ไข</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {data.map((item) => (
+                                                    <TableRow key={item.id}>
+                                                        <TableCell>{item.id}</TableCell>
+                                                        <TableCell>{item.name}</TableCell>
+                                                        <TableCell>{item.fullscores}</TableCell>
+                                                        <TableCell>
+                                                                    {editingRowId === item.id ? (
+                                                                        <TextField
+                                                                            value={item.score}
+                                                                            onChange={(e) => handleNameChange(item.id, e.target.value)}
+                                                                            inputProps={{
+                                                                                inputMode: 'numeric',
+                                                                                pattern: '[0-9]*',
+                                                                            }}
+                                                                        />
+                                                                    ) : (
+                                                                        item.score
+                                                                    )}
+                                                                </TableCell>
+                                                        <TableCell>
+                                                            {item.name !== 'คะแนนรวม' && (
+                                                                editingRowId === item.id ? (
+                                                                    <Button variant="outlined" onClick={handleSaveClick}>บันทึก</Button>
+                                                                ) : (
+                                                                    <Button variant="outlined" onClick={() => handleEditClick(item.id)}>แก้ไข</Button>
+                                                                )
+                                                            )}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                        <Dialog open={openDialog} onClose={handleCloseDialog}>
+                                            <DialogTitle>ทำการบันทึกสำเร็จ !!</DialogTitle>
+                                            <DialogContent>
+                                                <p>รอการตรวจสอบจากเจ้าหน้าที่</p>
+                                            </DialogContent>
+                                            <DialogActions>
+                                                <Button onClick={handleCloseDialog}>Close</Button>
+                                            </DialogActions>
+                                        </Dialog>
+                                    </TableContainer>
+                                    <Stack alignItems="center" justifyContent="center" fontSize='18px' sx={{ marginTop: 3 }}>
+                                        <Button variant="contained" onClick={handleSubmit}>
+                                            อนุมัติคะแนน
+                                        </Button>
+                                    </Stack>
+                                </>
+                            )}
                         </Grid>
                     </Grid>
                 </Grid>
