@@ -1,277 +1,303 @@
 import React, { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import TableContainer from '@mui/material/TableContainer';
-import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
-import TableBody from '@mui/material/TableBody';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import Dialog from '@mui/material/Dialog';
-import { Stack } from '@mui/system';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import { Grid } from '@mui/material';
-import MainCard from 'ui-component/cards/MainCard';
+import {
+  Button, Paper, Grid, Table, TextField,
+  TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Dialog, DialogTitle, DialogContent, DialogActions, Typography
+} from '@mui/material';
+import axios from 'axios';
 import { gridSpacing } from 'store/constant';
 
 function InputScoreCSB02() {
-    // State for select field
-    const [selectedOption, setSelectedOption] = useState('');
+  const [projects, setProjects] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [data, setData] = useState([
+    { id: 1, name: 'วัตถุประสงค์และขอบเขตโครงงาน', fullscores: '10', score: '' },
+    { id: 2, name: 'ความเข้าใจระบบงานเดิม/ทฤษฎีหรืองานวิจัย ที่นำมาใช้พัฒนาโครงงาน', fullscores: '20', score: '' },
+    { id: 3, name: 'การศึกษาความต้องการของระบบ และการออกแบบ', fullscores: '20', score: '' },
+    { id: 4, name: 'การนำเสนอโครงงาน', fullscores: '20', score: '' },
+    { id: 5, name: 'รูปแบบรายงาน', fullscores: '10', score: '' },
+    { id: 6, name: 'แนวทางการดำเนินงาน', fullscores: '10', score: '' },
+    { id: 7, name: 'คะแนนรวม', fullscores: '90', score: '' },
+  ]);
 
-    // State for text fields
-    const [textField1, setTextField1] = useState('');
-    const [textField2, setTextField2] = useState('');
-    const [textField3, setTextField3] = useState('');
+  const [examResults, setExamResults] = useState([]);
 
-
-    const [openDialog, setOpenDialog] = useState(false);
-
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-    //     // Perform any action with the linkValue, such as redirecting to the provided link
-    //     // For example: window.location.href = linkValue;
-    //     setOpenDialog(true);
-    // };
-
-    // Function to handle closing the dialog
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
+  useEffect(() => {
+    const fetchExamResults = async () => {
+      try {
+        const response = await axios.get('http://localhost:9999/Exam_results');
+        if (response.data && Array.isArray(response.data)) {
+          setExamResults(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching exam results:', error);
+      }
     };
 
-    // Sample data for the table
-    const data = [
-        { id: 1, name: 'วัตถุประสงค์และขอบเขตโครงงาน', fullscores: '10', score: '' },
-        { id: 2, name: 'ความเข้าใจระบบงานเดิม/ทฤษฎีหรืองานวิจัย ที่นำมาใช้พัฒนาโครงงาน', fullscores: '20', score: '' },
-        { id: 3, name: 'การศึกษาความต้องการของระบบ และการออกแบบ', fullscores: '20', score: '' },
-        { id: 4, name: 'การนำเสนอโครงงาน', fullscores: '20', score: '' },
-        { id: 5, name: 'รูปแบบรายงาน', fullscores: '10', score: '' },
-        { id: 6, name: 'แนวทางการดำเนินงาน', fullscores: '10', score: '' },
-        { name: 'คะแนนรวม', fullscores: '90', score: '' }, //ระบบต้องคำนวณคะแนนออกมา
-        // Add more data as needed
-    ];
+    fetchExamResults();
+  }, []);
 
-    const [project, setProject] = useState([]);
-    const [Getname, setGetname] = useState([]);
-    const [Getname2, setGetname2] = useState([]);
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        // Fetch projects
+        const response = await axios.get('http://localhost:9999/Project');
+        const projectsData = response.data;
+  
+        // Fetch exam results
+        const examResultsResponse = await axios.get('http://localhost:9999/Exam_results');
+        const examResultsData = examResultsResponse.data;
+  
+        if (projectsData && examResultsData) {
+          // Filter projects: ที่ปรึกษาต้องไม่เป็นค่าว่างและเงื่อนไขการประเมิน
+          const filteredProjects = projectsData.filter(project => {
+            const examResult = examResultsData.find(result => result.Er_Pname === project.P_name);
+            return project.P_T && // ตรวจสอบว่ามีที่ปรึกษา
+              examResult &&
+              examResult.Er_CSB01_status === 'ผ่าน' &&
+              !examResult.Er_CSB03_status &&
+              examResult.Er_CSB02_status !== 'ผ่าน';
+          });
+  
+          setProjects(filteredProjects);
+        }
+      } catch (error) {
+        console.error('Error fetching projects or exam results:', error);
+      }
+    };
+  
+    fetchProjects();
+  }, []);
+  
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const project = await axios.get('http://localhost:8001/  ');
-                setProject(Getname.data);
-                const Getname = await axios.get('http://localhost:8001/  ');
-                setGetname(Getname.data);
-                const Getname2 = await axios.get('http://localhost:8001/  ');
-                setGetname2(Getname.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
+  const handleChange4 = (id, field, value) => {
+    const isValidInput = (input) => /^[0-9]*$/.test(input);
+
+    setData(prevData => {
+      const updatedData = prevData.map(item => {
+        if (item.id === id) {
+          const numericValue = Number(value);
+          if (field === 'score') {
+            if (!isValidInput(value) || numericValue < 0 || numericValue > Number(item.fullscores) || isNaN(numericValue)) {
+              return item;
             }
-        };
+          }
+          return { ...item, [field]: value };
+        }
+        return item;
+      });
 
-        fetchData();
-    }, []);
+      const totalScore = updatedData.reduce((acc, item) => item.id !== 7 ? acc + Number(item.score || 0) : acc, 0);
 
-    const [ISCSB02, setISCSB02] = useState([]);
+      return updatedData.map(item => item.id === 7 ? { ...item, score: totalScore.toString() } : item);
+    });
+  };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.post('http://localhost:9999/ISCSB02');
-                setISCSB02(response.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
+  const handleDonNotGoAny = () => {
+    const updatedProjects = projects.map(project => ({ ...project, isRed: true, isDisabled: true }));
+    setProjects(updatedProjects);
+  };
+
+  const handleLinkClick = (index) => {
+    setSelectedProject(projects[index]);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleDisableRow = (index) => {
+    const updatedProjects = projects.map((project, i) => i === index ? { ...project, isDisabled: true } : project);
+    setProjects(updatedProjects);
+  };
+
+  const handleRedRow = (index) => {
+    const updatedProjects = projects.map((project, i) => i === index ? { ...project, isRed: true } : project);
+    setProjects(updatedProjects);
+  };
+
+  const handleSavePopup = async (e) => {
+    if (e) {
+      e.preventDefault();
+
+      const allScoresFilled = data.slice(0, -1).every(item => item.score !== '');
+      if (!allScoresFilled) {
+        alert('กรุณาตรวจสอบให้ครบทุกหัวข้อก่อนทำการบันทึก');
+        return;
+      }
+
+      await saveScore();
+      setProjects(prevProjects => prevProjects.filter(project => project.P_id !== selectedProject.P_id));
+      setOpen(false);
+    }
+  };
+
+  const saveScore = async () => {
+    const totalScore = Number(data.find(item => item.id === 7)?.score || '0');
+    try {
+      const existingResult = examResults.find(result => result.Er_Pname === selectedProject?.P_name);
+  
+      if (existingResult) {
+        const response = await axios.put(`http://localhost:9999/Exam_results/${existingResult._id}`, {
+          Er_Pname: selectedProject?.P_name,
+          Er_CSB01: existingResult.Er_CSB01,
+          Er_CSB02: totalScore,
+          Er_CSB03: '',
+          Er_CSB01_status: existingResult.Er_CSB01_status,
+          Er_CSB02_status: '',
+          Er_CSB03_status: '',
+        });
+  
+        if (response.status === 200) {
+          console.log('Score updated successfully!');
+          setOpenDialog(true);
+        } else {
+          console.error('Failed to update score:', response);
+        }
+      } else {
+        console.error('No existing result found for the project');
+      }
+    } catch (error) {
+      console.error('Error:', error.response ? error.response.data : error.message);
+    }
+  };  
+
+  return (
+    <Paper style={{ padding: 16 }}>
+      <Grid container spacing={gridSpacing}>
+        <Grid item xs={12}>
+          <Grid container direction="column" spacing={1}>
+            <h1>ประเมินการสอบก้าวหน้าโครงงานพิเศษ</h1>
+            <Button onClick={handleDonNotGoAny} variant="contained" color="error">
+              ไม่เข้าร่วมประเมินทั้งหมด
+            </Button>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ลำดับที่</TableCell>
+                    <TableCell>ชื่อโครงงาน</TableCell>
+                    <TableCell>ประเมินการสอบโครงงานพิเศษ</TableCell>
+                    <TableCell>ไม่ประสงค์ลงคะแนนสอบ</TableCell>
+                    <TableCell>ไม่เข้าประเมินการสอบ</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {projects.map((project, index) => (
+                    <TableRow key={project.P_id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{project.P_name}</TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => handleLinkClick(index)}
+                          variant="outlined"
+                          disabled={project.isDisabled}
+                        >
+                          ประเมิน
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => handleDisableRow(index)}
+                          variant="outlined"
+                          disabled={project.isDisabled || project.isRed}
+                        >
+                          ไม่ประสงค์ลงคะแนน
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => handleRedRow(index)}
+                          variant="outlined"
+                          disabled={project.isDisabled || project.isRed}
+                        >
+                          ไม่เข้าประเมิน
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+        </Grid>
+      </Grid>
+
+      {selectedProject && (
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          maxWidth="lg"
+          fullWidth
+          PaperProps={{
+            style: {
+              minHeight: '80vh',
+              maxHeight: '90vh',
             }
-        };
-
-        fetchData();
-    }, []);
-
-    return (
-        <MainCard>
-            <Grid container spacing={gridSpacing}>
-                <Grid item xs={12}>
-                    <Grid container alignItems="center" justifyContent="space-between">
-                        <Grid item>
-                            <Grid container direction="column" spacing={1}></Grid>
-                            <div>
-                                <Box
-                                    fontSize='18px'
-                                    sx={{
-                                        marginTop: 5,
-                                        //marginLeft: 50,
-
-                                    }}
-                                >
-                                    <h1>แบบประเมินโครงงานพิเศษ 1 (สอบก้าวหน้า)</h1>
-                                    {/* Select field */}
-                                    <p>
-                                        รหัสโครงงาน
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        ชื่อโครงงาน
-                                    </p>
-                                    <FormControl>
-                                        <InputLabel id="ProjectID-select-label">ProjectID</InputLabel>
-                                        <Select
-                                            labelId="ProjectID-select-label"
-                                            value={selectedOption}
-                                            onChange={(e) => setSelectedOption(e.target.value)}
-                                            //fullWidth
-                                            label="ProjectID"
-                                            margin="normal"
-                                            row
-                                            sx={{
-                                                minWidth: 150,
-                                                //marginRight: 33,
-                                            }}
-                                        >
-                                            <MenuItem value="SP1-01">SP1-01</MenuItem>
-                                            <MenuItem value="SP1-02">SP1-02</MenuItem>
-                                            <MenuItem value="SP1-03">SP1-03</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                    <TextField
-                                        label="ชื่อโครงงาน"
-                                        value={textField3}
-                                        onChange={(e) => setTextField3(e.target.value)}
-                                        disabled
-                                        //fullWidth
-                                        //margin="normal"
-                                        sx={{
-                                            '& > :not(style)': { ml: 5, width: '50ch' },
-                                        }}
-                                    />
-                                    <br></br>
-
-                                    {/* Disabled text fields */}
-                                    <p>โดย</p>
-                                    <TextField
-                                        label="รหัสนักศึกษาคนที่ 1"
-                                        value={textField1}
-                                        onChange={(e) => setTextField1(e.target.value)}
-                                        disabled
-                                        //fullWidth
-                                        //margin="normal"
-                                        sx={{
-                                            '& > :not(style)': { mr: 5, ml: 5, width: '25ch' },
-                                        }}
-                                    />
-                                    <TextField
-                                        label="ชื่อ-สกุลนักศึกษาคนที่ 1"
-                                        value={textField2}
-                                        onChange={(e) => setTextField2(e.target.value)}
-                                        disabled
-                                        //fullWidth
-                                        //margin="normal"
-                                        sx={{
-                                            '& > :not(style)': { mr: 0, width: '30ch' },
-                                        }}
-                                    /><br></br>
-                                    <TextField
-                                        label="รหัสนักศึกษาคนที่ 2"
-                                        value={textField1}
-                                        onChange={(e) => setTextField1(e.target.value)}
-                                        disabled
-                                        //fullWidth
-                                        //margin="normal"
-                                        sx={{
-                                            '& > :not(style)': { mr: 5, ml: 5, mt: 3, width: '25ch' },
-                                        }}
-                                    />
-                                    <TextField
-                                        label="ชื่อ-สกุลนักศึกษาคนที่ 2"
-                                        value={textField2}
-                                        onChange={(e) => setTextField2(e.target.value)}
-                                        disabled
-                                        //fullWidth
-                                        //margin="normal"
-                                        sx={{
-                                            '& > :not(style)': { mt: 3, width: '30ch' },
-                                        }}
-                                    />
-                                    <p>อาจารย์ที่ปีกษา</p>
-                                    <TextField
-                                        label="ชื่ออาจารย์ที่ปรึกษา"
-                                        value={textField1}
-                                        onChange={(e) => setTextField1(e.target.value)}
-                                        disabled
-                                        //fullWidth
-                                        //margin="normal"
-                                        sx={{
-                                            '& > :not(style)': { mr: 5, ml: 5, width: '25ch' },
-                                        }}
-                                    />
-                                </Box>
-                                {/* Table for entering scores */}
-                                <h2>ตารางลงคะแนนสำหรับกรรมการสอบ</h2>
-                                <TableContainer component={Paper}>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>ลำดับที่</TableCell>
-                                                <TableCell>เกณฑ์พิจารณา</TableCell>
-                                                <TableCell>คะแนนเต็ม</TableCell>
-                                                <TableCell>ลงคะแนน</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {/* Map through data to render table rows */}
-                                            {data.map((item) => (
-                                                <TableRow key={item.id}>
-                                                    <TableCell>{item.id}</TableCell>
-                                                    <TableCell>{item.name}</TableCell>
-                                                    <TableCell>{item.fullscores}</TableCell>
-                                                    <TableCell>
-                                                        <TextField
-                                                            onChange={(e) => {
-                                                                const newData = [...data];
-                                                                newData[item.id - 1].score = e.target.value;
-                                                            }}
-                                                            //fullWidth
-                                                            margin="none"
-                                                        />
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                    <Dialog open={openDialog} onClose={handleCloseDialog}>
-                                        <DialogTitle>ทำการบันทึกสำเร็จ !!</DialogTitle>
-                                        <DialogContent>
-                                            <p>รอการตรวจสอบจากเจ้าหน้าที่</p>
-                                        </DialogContent>
-                                        <DialogActions>
-                                            <Button onClick={handleCloseDialog}>Close</Button>
-                                        </DialogActions>
-                                    </Dialog>
-                                </TableContainer>
-                                <Stack
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    fontSize='18px'
-                                    sx={{
-                                        marginTop: 3,
-                                    }}
-                                >
-                                    {/* <Button variant="contained" onClick={handleSubmit}>
-                                        บันทึกคะแนน
-                                    </Button> */}
-                                </Stack>
-                            </div>
-                        </Grid>
-                    </Grid>
-                </Grid>
+          }}
+        >
+          <DialogTitle>ประเมินคะแนนโครงงาน</DialogTitle>
+          <DialogContent>
+            <Typography variant="h3">ชื่อโครงงาน: {selectedProject.P_name}</Typography>
+            <Typography>นักเรียนคนที่ 1: {selectedProject.P_S1}</Typography>
+            <Typography>นักเรียนคนที่ 2: {selectedProject.P_S2}</Typography>
+            <Typography>ที่ปรึกษา: {selectedProject.P_T}</Typography>
+            <h2>ตารางลงคะแนนสำหรับกรรมการสอบ</h2>
+            <Grid container spacing={2} style={{ padding: '0 16px' }}>
+              <Grid item xs={12}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>หัวข้อการประเมิน</TableCell>
+                      <TableCell>คะแนนเต็ม</TableCell>
+                      <TableCell>คะแนนที่ได้</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.fullscores}</TableCell>
+                        <TableCell>
+                          <TextField
+                            value={item.score}
+                            onChange={(e) => handleChange4(item.id, 'score', e.target.value)}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Grid>
             </Grid>
-        </MainCard>
-    );
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              ปิด
+            </Button>
+            <Button onClick={handleSavePopup} color="primary">
+              บันทึก
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>บันทึกข้อมูลสำเร็จ</DialogTitle>
+        <DialogContent>
+          <Typography>การบันทึกข้อมูลเสร็จสิ้น</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            ตกลง
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Paper>
+  );
 }
 
 export default InputScoreCSB02;

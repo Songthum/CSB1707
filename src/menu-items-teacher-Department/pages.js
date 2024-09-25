@@ -48,28 +48,21 @@ const pages = {
           id: 'login3', //สร้างไอดีใหม่ด้วยนะ
           title: 'ตรวจสอบคุณสมบัติยื่นสอบ Special Project 1',
           type: 'item',
-          url: 'studen/sample-page/UploadLinkTranscript', 
+          url: '/sample-page/UploadLinkTranscript', 
           target: false
         },
-        // {
-        //   id: 'register34', //สร้างไอดีใหม่ด้วยนะ
-        //   title: 'ตรวจสอบคำร้องคู่โครงงาน',
-        //   type: 'item',
-        //   url: 'studen/sample-page/Projectrequest', 
-        //   target: false
-        // },
         {
           id: 'register3', //สร้างไอดีใหม่ด้วยนะ
           title: 'ยื่นสอบหัวข้อ(CSB01)',
           type: 'item',
-          url: 'studen/sample-page/CSB01', 
+          url: '/sample-page/CSB01', 
           target: false
         },
         {
           id: 'register32', //สร้างไอดีใหม่ด้วยนะ
           title: 'ยื่นสอบก้าวหน้า(CSB02)',
           type: 'item',
-          url: 'studen/sample-page/CSB02', 
+          url: '/sample-page/CSB02', 
           target: false
         }
       ]
@@ -85,34 +78,34 @@ const pages = {
           id: 'login31', //สร้างไอดีใหม่ด้วยนะ
           title: 'ตรวจสอบคุณสมบัติยื่นสอบ Special Project 2',
           type: 'item',
-          url: 'studen/sample-page/UploadLinkTranscript2', 
+          url: '/sample-page/UploadLinkTranscript2', 
           target: false
         },
         {
           id: 'register33', //สร้างไอดีใหม่ด้วยนะ
           title: 'ยื่นสอบป้องกัน(CSB03)',
           type: 'item',
-          url: 'studen/sample-page/CSB03', 
+          url: '/sample-page/CSB03', 
           target: false
         }
       ]
     },
     {
-      id: 'sample-page123',
+      id: 'sample-page',
       title: 'ตรวจสอบสถานะต่างๆ',
       type: 'item',
-      url: 'studen/sample-page/CheckAllStatus',
+      url: '/sample-page',
       icon: icons.IconBrandChrome,
       breadcrumbs: false
     },
-    // {
-    //   id: 'sample-page56',
-    //   title: 'ประวัติส่วนตัว',
-    //   type: 'item',
-    //   url: 'studen/sample-page',
-    //   icon: icons.IconBrandChrome,
-    //   breadcrumbs: false
-    // }
+    {
+      id: 'sample-page56',
+      title: 'ประวัติส่วนตัว',
+      type: 'item',
+      url: '/sample-page',
+      icon: icons.IconBrandChrome,
+      breadcrumbs: false
+    }
   ],
 
 };

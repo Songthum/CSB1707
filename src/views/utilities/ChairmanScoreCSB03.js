@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
@@ -11,90 +12,70 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import Dialog from '@mui/material/Dialog';
-import { Stack } from '@mui/system';
+import { Grid } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-import { Grid } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
+import { Stack } from '@mui/system';
 
 function ChairmanScoreCSB03() {
-    const [ProjectSelect, setProjectSelect] = useState('');
-    const [ProjectSelect2, setProjectSelect2] = useState('');
+    const [selectedProject, setSelectedProject] = useState(null);
     const [editingRowId, setEditingRowId] = useState(null);
+    const [data, setData] = useState([{ id: 1, name: 'คะแนนรวม', fullscores: '80', score: '' }]);
+    const [projects, setProjects] = useState([]); // State for storing project data
     const [openDialog, setOpenDialog] = useState(false);
 
-    const project = [
-                {
-                  "ID": "001",
-                  "Name": "ระบบตรวจสอบการวัดพื้นที่",
-                  "SID": "6304062620061",
-                  "SName": "ณัชริกา กันทะสอน",
-                  "SID2": "6304062620062",
-                  "SName2": "ใจดี ยืมเงิน",
-                  "TID": "NLP",
-                  "TName": "ลือพล ไม่น่ารักเลย"
-                },
-                {
-                  "ID": "002",
-                  "Name": "ระบบจำลองโมเดล",
-                  "SID": "6304062620063",
-                  "SName": "สบายดี สบายใจ",
-                  "SID2": "6304062620064",
-                  "SName2": "สุดสวย สุดหล่อ",
-                  "TID": "SWK",
-                  "TName": "สุวัชชัย ตัวตึง"
-                },
-                {
-                  "ID": "003",
-                  "Name": "เว็บไซต์ขายของ",
-                  "SID": "6304062620065",
-                  "SName": "ไอ่กล้อง ไอ่อ้วน",
-                  "SID2": "6304062620066",
-                  "SName2": "แมวเหมียว น่ารัก",
-                  "TID": "KAB",
-                  "TName": "คัณฑารัตน์ สุดละเอียด"
-                },
-                {
-                  "ID": "004",
-                  "Name": "เว็บไซต์ขายที่ดิน",
-                  "SID": "6304062620067",
-                  "SName": "มะหมา สุดหล่อ",
-                  "SID2": "6304062620068",
-                  "SName2": "หนูน้อย น่ารัก",
-                  "TID": "CRL",
-                  "TName": "เฉียบวุฒิ สุดจ้าบ"
-            
-                },
-                {
-                  "ID": "005",
-                  "Name": "เกมส์ปลูกผัก",
-                  "SID": "6304062620069",
-                  "SName": "สวัสดีครับ ผมนวย",
-                  "SID2": "6304062620070",
-                  "SName2": "ไม่มี ตังค์ค่า",
-                  "TID": "ARN",
-                  "TName": "เอิญ ไม่ใจดี"
+    const fetchProjects = async () => {
+        try {
+            const projectResponse = await axios.get('http://localhost:9999/Project');
+            const examResponse = await axios.get('http://localhost:9999/Exam_results');
+    
+            // Filter projects based on their exam results and status
+            const filteredProjects = projectResponse.data.filter(project => {
+                const result = examResponse.data.find(result => result.Er_Pname === project.P_name);
+                return result && result.Er_CSB03_status !== 'ผ่าน' && !isNaN(Number(result.Er_CSB03)) && Number(result.Er_CSB03) > 0; 
+            });
+    
+            setProjects(filteredProjects);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+    
+    useEffect(() => {
+        fetchProjects();
+    }, []);
+
+    useEffect(() => {
+        const fetchExamResults = async () => {
+            if (selectedProject) {
+                try {
+                    const examResponse = await axios.get('http://localhost:9999/Exam_results');
+                    const projectExamResult = examResponse.data.find(result => result.Er_Pname === selectedProject.P_name);
+                    if (projectExamResult) {
+                        setData([{ id: 1, name: 'คะแนนรวม', fullscores: '80', score: projectExamResult.Er_CSB03 }]);
+                    } else {
+                        setData([{ id: 1, name: 'คะแนนรวม', fullscores: '80', score: '' }]);
+                    }
+                } catch (error) {
+                    console.error('Error fetching exam results:', error);
                 }
-            ];
-        
+            }
+        };
+
+        fetchExamResults();
+    }, [selectedProject]); 
 
     const handleNameChange = (id, value) => {
-        // ค้นหารายการที่ผู้ใช้กำลังแก้ไข
         const item = data.find(item => item.id === id);
-        
-        // ตรวจสอบว่าเป็นตัวเลขและไม่เกินคะแนนเต็ม
+
         if (/^\d*$/.test(value) && Number(value) <= Number(item.fullscores)) {
             setData(prevData =>
                 prevData.map(item =>
                     item.id === id ? { ...item, score: value } : item
                 )
             );
-            
         }
     };
 
@@ -105,14 +86,15 @@ function ChairmanScoreCSB03() {
 
         setData(prevData =>
             prevData.map(item =>
-                item.name === 'คะแนนรวม' ? { ...item, score: totalScore } : item
+                item.name === '' ? { ...item, score: totalScore } : item
             )
         );
     };
 
     const handleChange = (event) => {
-        setProjectSelect(project.find(person => person.ID === event.target.value));
-    };
+        const selectedProject = projects.find(p => p.P_name === event.target.value);
+        setSelectedProject(selectedProject);
+    }; 
 
     const handleEditClick = (id) => {
         setEditingRowId(id);
@@ -122,28 +104,70 @@ function ChairmanScoreCSB03() {
         setEditingRowId(null);
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setOpenDialog(true);
-    };
-
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
 
-    const [data, setData] = useState([
-        { id: 1, name: 'การออกแบบหรือแนวคิด', fullscores: '10', score: '9' },
-        { id: 2, name: 'วิธีการ/การดำเนินงาน', fullscores: '20', score: '18' },
-        { id: 3, name: 'ความสมบูรณ์ของผลงาน', fullscores: '20', score: '20' },
-        { id: 4, name: 'เนื้อหาและรูปแบบของปริญญานิพนธ์', fullscores: '10', score: '9' },
-        { id: 5, name: 'การนำเสนอโครงงาน', fullscores: '10', score: '7' },
-        { id: 6, name: 'การนำผลงานไปใช้ประโยชน์', fullscores: '5', score: '4' },
-        { id: 7, name: 'สรุป/วิจารณ์/การพัฒนาต่อในอนาคต', fullscores: '5', score: '3' },
-        { name: 'คะแนนรวม', fullscores: '80', score: '70' },
-    ]);
     useEffect(() => {
         calculateTotalScore();
     }, [data]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+    
+        if (!selectedProject || !selectedProject.P_name) {
+            alert("Project name is missing. Please select a project.");
+            return;
+        }
+    
+        try {
+            // Fetch the current record based on project name
+            const currentDataResponse = await axios.get(`http://localhost:9999/Exam_results?Er_Pname=${selectedProject.P_name}`);
+            const currentData = currentDataResponse.data;
+    
+            if (!currentData || currentData.length === 0) {
+                alert("No data found for this project. Please check the project details.");
+                return;
+            }
+    
+            // Update only Er_CSB03
+            const updatedEr_CSB03 = data.find(item => item.name === 'คะแนนรวม')?.score;
+    
+            const payload = {
+                ...currentData[0],  // Assuming the response is an array
+                Er_CSB03: updatedEr_CSB03 || '' // Only update this field
+            };
+    
+            // Ensure _id exists in the payload for updating
+            if (!currentData[0]._id) {
+                alert("No valid ID found for the project. Cannot update.");
+                return;
+            }
+    
+            const response = await axios.put(`http://localhost:9999/Exam_results/${currentData[0]._id}`, payload);
+    
+            if (response.status === 200) {
+                alert("Subject updated successfully!");
+    
+                // Clear the selected project and data after successful update
+                setSelectedProject(null);
+                setData([{ id: 1, name: 'คะแนนรวม', fullscores: '80', score: '' }]);
+    
+                // Refresh the project list and remove the updated project
+                fetchProjects().then(() => {
+                    setProjects(prevProjects => prevProjects.filter(project => project.P_name !== selectedProject.P_name));
+                });
+    
+                setOpenDialog(true); // Open dialog on successful submission
+            } else {
+                alert("Update failed. Please check the server response.");
+            }
+        } catch (error) {
+            console.error('Error updating subject:', error);
+            alert("Failed to update subject. Please try again later.");
+        }
+    };
+    
 
     return (
         <MainCard>
@@ -153,143 +177,106 @@ function ChairmanScoreCSB03() {
                         <Grid item>
                             <Box fontSize='18px' sx={{ marginTop: 5 }}>
                                 <h1>แบบประเมินโครงงานพิเศษ 2 (ปริญญานิพนธ์)</h1>
-                                <p>
-                                    รหัสโครงงาน
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    ชื่อโครงงาน
-                                </p>
-                                <FormControl>
-                                    <InputLabel id="ProjectID-select-label">ProjectID</InputLabel>
+                                <p>เลือกชื่อโครงงาน</p>
+                                <FormControl sx={{ minWidth: 150 }}>
+                                    <InputLabel id="project-name-select-label">ชื่อโครงงาน</InputLabel>
                                     <Select
-                                        labelId="ProjectID-select-label"
-                                        value={ProjectSelect.ID || ''}
-                                        onChange={handleChange}
-                                        label="ProjectID"
-                                        margin="normal"
-                                        sx={{ minWidth: 150 }}
-                                    >
-                                        {project.filter(p => p.ID !== ProjectSelect2.ID).map((proj) => (
-                                            <MenuItem
-                                                key={proj.ID}
-                                                value={proj.ID}
-                                            >
-                                                {proj.ID}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
+                                            labelId="ProjectName-select-label"
+                                            value={selectedProject?.P_name || ''}
+                                            onChange={handleChange}
+                                            margin="normal"
+                                            sx={{ minWidth: 150 }}
+                                        >
+                                            {projects.map((p) => (
+                                                <MenuItem key={p._id} value={p.P_name}>
+                                                    {p.P_name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
                                 </FormControl>
-                                <TextField
-                                    label="ชื่อโครงงาน"
-                                    defaultValue="ชื่อโครงงาน"
-                                    value={ProjectSelect.Name || ''}
-                                    disabled
-                                    sx={{ '& > :not(style)': { ml: 5, width: '50ch' } }}
-                                />
                                 <br />
                                 <p>โดย</p>
                                 <TextField
-                                    label="รหัสนักศึกษาคนที่ 1"
-                                    defaultValue="รหัสนักศึกษาคนที่ 1"
-                                    value={ProjectSelect.SID || ''}
-                                    disabled
-                                    sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
-                                />
-                                <TextField
-                                    label="ชื่อ-สกุลนักศึกษาคนที่ 1"
-                                    defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 1"
-                                    value={ProjectSelect.SName || ''}
-                                    disabled
-                                    sx={{ '& > :not(style)': { mr: 0, width: '30ch' } }}
-                                /><br />
-                                <TextField
-                                    label="รหัสนักศึกษาคนที่ 2"
-                                    defaultValue="รหัสนักศึกษาคนที่ 2"
-                                    value={ProjectSelect.SID2 || ''}
-                                    disabled
-                                    sx={{ '& > :not(style)': { mr: 5, ml: 5, mt: 3, width: '25ch' } }}
-                                />
-                                <TextField
-                                    label="ชื่อ-สกุลนักศึกษาคนที่ 2"
-                                    defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 2"
-                                    value={ProjectSelect.SName2 || ''}
-                                    disabled
-                                    sx={{ '& > :not(style)': { mt: 3, width: '30ch' } }}
-                                />
-                                <p>อาจารย์ที่ปรึกษา</p>
-                                <TextField
-                                    label="ชื่ออาจารย์ที่ปรึกษา"
-                                    defaultValue="ชื่ออาจารย์ที่ปรึกษา"
-                                    value={ProjectSelect.TName || ''}
-                                    disabled
-                                    sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
-                                />
+                                        label="ชื่อ-สกุลนักศึกษาคนที่ 1"
+                                        value={selectedProject?.P_S1 || ''}
+                                        disabled
+                                        sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
+                                    />
+                                    <TextField
+                                        label="ชื่อ-สกุลนักศึกษาคนที่ 2"
+                                        value={selectedProject?.P_S2 || ''}
+                                        disabled
+                                        sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
+                                    />
+                                    <p>อาจารย์ที่ปรึกษา</p>
+                                    <TextField
+                                        label="ชื่ออาจารย์ที่ปรึกษา"
+                                        value={selectedProject?.P_T || ''}
+                                        disabled
+                                        sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '40ch' } }}
+                                    />
                             </Box>
 
-                            {ProjectSelect && (
+                            {selectedProject && (
                                 <>
-                                    <h2>ตารางลงคะแนนสำหรับกรรมการสอบ</h2>
+                                    <h2>ตารางคะแนนสำหรับประธานกรรมการสอบ</h2>
                                     <TableContainer component={Paper}>
                                         <Table>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell>ลำดับที่</TableCell>
-                                                    <TableCell>เกณฑ์พิจารณา</TableCell>
                                                     <TableCell>คะแนนเต็ม</TableCell>
-                                                    <TableCell>ลงคะแนน</TableCell>
+                                                    <TableCell>คะแนนได้</TableCell>
                                                     <TableCell>แก้ไข</TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
                                                 {data.map((item) => (
                                                     <TableRow key={item.id}>
-                                                        <TableCell>{item.id}</TableCell>
-                                                        <TableCell>{item.name}</TableCell>
                                                         <TableCell>{item.fullscores}</TableCell>
                                                         <TableCell>
-                                                                    {editingRowId === item.id ? (
-                                                                        <TextField
-                                                                            value={item.score}
-                                                                            onChange={(e) => handleNameChange(item.id, e.target.value)}
-                                                                            inputProps={{
-                                                                                inputMode: 'numeric',
-                                                                                pattern: '[0-9]*',
-                                                                            }}
-                                                                        />
-                                                                    ) : (
-                                                                        item.score
-                                                                    )}
-                                                                </TableCell>
+                                                            {editingRowId === item.id ? (
+                                                                <TextField
+                                                                    value={item.score}
+                                                                    onChange={(e) => handleNameChange(item.id, e.target.value)}
+                                                                    inputProps={{
+                                                                        inputMode: 'numeric',
+                                                                        pattern: '[0-9]*'
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                item.score
+                                                            )}
+                                                        </TableCell>
                                                         <TableCell>
-                                                            {item.name !== 'คะแนนรวม' && (
-                                                                editingRowId === item.id ? (
-                                                                    <Button variant="outlined" onClick={handleSaveClick}>บันทึก</Button>
-                                                                ) : (
-                                                                    <Button variant="outlined" onClick={() => handleEditClick(item.id)}>แก้ไข</Button>
-                                                                )
+                                                            {editingRowId === item.id ? (
+                                                                <Button variant="contained" onClick={handleSaveClick}>
+                                                                    บันทึก
+                                                                </Button>
+                                                            ) : (
+                                                                <Button variant="contained" onClick={() => handleEditClick(item.id)}>
+                                                                    แก้ไข
+                                                                </Button>
                                                             )}
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
                                         </Table>
-                                        <Dialog open={openDialog} onClose={handleCloseDialog}>
-                                            <DialogTitle>ทำการบันทึกสำเร็จ !!</DialogTitle>
-                                            <DialogContent>
-                                                <p>รอการตรวจสอบจากเจ้าหน้าที่</p>
-                                            </DialogContent>
-                                            <DialogActions>
-                                                <Button onClick={handleCloseDialog}>Close</Button>
-                                            </DialogActions>
-                                        </Dialog>
                                     </TableContainer>
-                                    <Stack alignItems="center" justifyContent="center" fontSize='18px' sx={{ marginTop: 3 }}>
-                                        <Button variant="contained" onClick={handleSubmit}>
-                                            อนุมัติคะแนน
-                                        </Button>
-                                    </Stack>
                                 </>
                             )}
+                            <div>
+                                <form onSubmit={handleSubmit}>
+                                    <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+                                        <Button variant="contained" color="primary" type="submit">
+                                            บันทึก
+                                        </Button>
+                                        <Button variant="contained" color="secondary" onClick={() => setSelectedProject(null)}>
+                                            ยกเลิก
+                                        </Button>
+                                    </Stack>
+                                </form>
+                            </div>
                         </Grid>
                     </Grid>
                 </Grid>

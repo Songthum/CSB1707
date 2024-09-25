@@ -110,22 +110,22 @@ const utilities = {
         }
       ]
     },
-    {
-      id: 'sample-page1',
-      title: 'อนุมัติคะแนนสอบก้าวหน้า โดยประธานกรรมการสอบ',
-      type: 'item',
-      url: 'teacher/utilities/ChairmanScoreCSB02',
-      icon: icons.IconBrandChrome,
-      breadcrumbs: false
-    },
-    {
-      id: 'sample-page2',
-      title: 'อนุมัติคะแนนสอบป้องกัน โดยประธานกรรมการสอบ',
-      type: 'item',
-      url: 'teacher/utilities/ChairmanScoreCSB03',
-      icon: icons.IconBrandChrome,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'sample-page1',
+    //   title: 'อนุมัติคะแนนสอบก้าวหน้า โดยประธานกรรมการสอบ',
+    //   type: 'item',
+    //   url: 'teacher/utilities/ChairmanScoreCSB02',
+    //   icon: icons.IconBrandChrome,
+    //   breadcrumbs: false
+    // },
+    // {
+    //   id: 'sample-page2',
+    //   title: 'อนุมัติคะแนนสอบป้องกัน โดยประธานกรรมการสอบ',
+    //   type: 'item',
+    //   url: 'teacher/utilities/ChairmanScoreCSB03',
+    //   icon: icons.IconBrandChrome,
+    //   breadcrumbs: false
+    // },
     {
       id: 'sample-page3',
       title: 'อนุมัติคะแนนสอบก้าวหน้า โดยหัวหน้าภาควิชา',

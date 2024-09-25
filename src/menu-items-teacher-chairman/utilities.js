@@ -126,22 +126,22 @@ const utilities = {
       icon: icons.IconBrandChrome,
       breadcrumbs: false
     },
-    {
-      id: 'sample-page3',
-      title: 'อนุมัติคะแนนสอบก้าวหน้า โดยหัวหน้าภาควิชา',
-      type: 'item',
-      url: 'teacher/utilities/DepartmentHeadScoreCSB02',
-      icon: icons.IconBrandChrome,
-      breadcrumbs: false
-    },
-    {
-      id: 'sample-page4',
-      title: 'อนุมัติคะแนนสอบป้องกัน โดยหัวหน้าภาควิชา',
-      type: 'item',
-      url: 'teacher/utilities/DepartmentHeadScoreCSB03',
-      icon: icons.IconBrandChrome,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'sample-page3',
+    //   title: 'อนุมัติคะแนนสอบก้าวหน้า โดยหัวหน้าภาควิชา',
+    //   type: 'item',
+    //   url: 'teacher/utilities/DepartmentHeadScoreCSB02',
+    //   icon: icons.IconBrandChrome,
+    //   breadcrumbs: false
+    // },
+    // {
+    //   id: 'sample-page4',
+    //   title: 'อนุมัติคะแนนสอบป้องกัน โดยหัวหน้าภาควิชา',
+    //   type: 'item',
+    //   url: 'teacher/utilities/DepartmentHeadScoreCSB03',
+    //   icon: icons.IconBrandChrome,
+    //   breadcrumbs: false
+    // },
   ]
 };
 

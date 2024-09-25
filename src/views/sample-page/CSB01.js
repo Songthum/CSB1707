@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import { Stack } from '@mui/system';
@@ -20,14 +20,12 @@ import Dialog from '@mui/material/Dialog';
 import { Grid } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
-import { Value } from 'sass';
+import axios from 'axios';
 
 function CSB01() {
-    const [StudentSelect, setStudentSelect] = useState('');
-    const [StudentSelect2, setStudentSelect2] = useState('');
 
-    const [selectTeacher, setSelectTeacher] = useState('');
 
+    
     const [selectedValues, setSelectedValues] = useState({
         networks: false,
         graphics: false,
@@ -36,142 +34,274 @@ function CSB01() {
         games: false,
     });
 
-    const handleChange = (event) => {
-        setStudentSelect(Students.find(person => person.ID === event.target.value));
+    const getFilteredOptions = (selectedStudentIds) => {
+        // สมมติว่า projectStudents เป็น array ที่เก็บรหัสนักเรียนที่มีอยู่ในโครงการ
+        const projectStudents = []; // ดึงข้อมูลจาก API หรือสถานะที่เก็บไว้
+    
+        return studentData.filter(student => 
+            !selectedStudentIds.includes(student.S_id) && 
+            !projectStudents.includes(student.S_id)
+        );
+    };
+    
+
+    const [openDialog, setOpenDialog] = useState(false);
+
+    const handleCloseDialog = () => setOpenDialog(false);
+
+    const [selectedValue, setSelectedValue] = useState('');
+
+    const handleProjectNameChange = (e) => {
+        const regex = /^[A-Za-z\s]*$/;
+        if (regex.test(e.target.value)) {
+            setPData({ ...PData, P_name: e.target.value });
+        }
     };
 
-    const handleChange2 = (event) => {
-        setStudentSelect2(Students.find(person => person.ID === event.target.value));
+    const handleSelectChange = (e) => {
+        const { name, value } = e.target;
+        if (name === 'S_id1' || name === 'S_id2') {
+            setSData(prevState => ({
+                ...prevState,
+                [name]: value
+            }));
+        } else if (name === 'T_id') {
+            setTData({ T_id: value });
+        }
     };
 
-    const handleSelectTeacherChange = (event) => {
-        // const value = event.target.value;
-        setSelectTeacher(Teachers.find(person => person.ID === event.target.value));
-        console.log(Teachers.find(person => person.ID === event.target.value)); // Log the selected teacher ID
+    const [studentData, setStudentData] = useState([]);
+    const [studentNames, setStudentNames] = useState([]);
+    const [teachers, setTeachers] = useState([]);
+
+    const [PData, setPData] = useState({
+        P_name: '',
+        P_details: '',
+        P_status: '',
+        P_CSB01: '',
+        P_CSB02: '',
+        P_CSB03: '',
+        P_S1: '',
+        P_S2: '',
+        P_T: '',
+        P_type: '',
+        P_tool: '',
+    });
+
+    const [SData, setSData] = useState({
+        S_id1: '',
+        S_id2: ''
+    });
+
+    const [TData, setTData] = useState({
+        T_id: ''
+    });
+
+    const validateForm = () => {
+        const errors = {
+            projectName: !PData.P_name,
+            projectDetails: !PData.P_details,
+            student1: !SData.S_id1,
+            student2: !SData.S_id2
+        };
+
+        setErrors(errors);
+        return !Object.values(errors).includes(true);
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            alert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน');
+            return;
+        }
+
+        const student1Name = studentData.find(student => student.S_id === SData.S_id1)?.S_name || '';
+        const student2Name = studentData.find(student => student.S_id === SData.S_id2)?.S_name || '';
+        const teacherName = teachers.find(teacher => teacher.T_id === TData.T_id)?.T_name || '';
+
+        const projectData = {
+            ...PData,
+            P_S1: student1Name,
+            P_S2: student2Name,
+            P_T: teacherName
+        };
+
+        try {
+            console.log('Submitting data:', projectData);
+            const response = await axios.post('http://localhost:9999/Project', projectData);
+            console.log('Project added:', response.data);
+            alert("บันทึกโครงงานสำเร็จ!");
+
+            setPData({
+                P_name: '',
+                P_details: '',
+                P_status: '',
+                P_CSB01: '',
+                P_CSB02: '',
+                P_CSB03: '',
+                P_S1: '',
+                P_S2: '',
+                P_T: '',
+                P_type: '',
+                P_tool: ''
+            });
+            setSData({
+                S_id1: '',
+                S_id2: ''
+            });
+            setTData({
+                T_id: ''
+            });
+        } catch (error) {
+            console.error('Error adding project:', error);
+            alert("ไม่สามารถบันทึกโครงงานได้ กรุณาลองอีกครั้ง");
+        }
+
+        setOpenDialog(true);
+    };
+
+    const handleRadioChange = (event) => {
+        const selectedValue = event.target.value;
+
+        if (selectedValue === "No") {
+            setPData(prevData => ({
+                ...prevData,
+                P_status: "ไม่มีที่ปรึกษา",
+                P_T: ''
+            }));
+
+            fetch('http://localhost:9999/Project', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    P_status: "ไม่มีที่ปรึกษา",
+                    P_T: null
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        } else if (selectedValue === "Yes") {
+            setPData(prevData => ({
+                ...prevData,
+                P_status: ''
+            }));
+        }
+
+        setSelectedValue(selectedValue);
+    };
+
+    const [errors, setErrors] = useState({
+        projectName: false,
+        projectDetails: false,
+        student1: false,
+        student2: false
+    });
+
+    const selectedIds = [SData.S_id1, SData.S_id2].filter(id => id);
+
+    useEffect(() => {
+        const fetchStudent = async () => {
+            try {
+                const response = await axios.get('http://localhost:9999/students');
+                if (response.data && Array.isArray(response.data)) {
+                    const uniqueStudents = Array.from(new Map(response.data.map(item => [item.S_id, item])).values());
+                    setStudentData(uniqueStudents);
+                    setStudentNames(uniqueStudents.map(item => ({ S_id: item.S_id, S_name: item.S_name })));
+                }
+            } catch (error) {
+                console.error('Error fetching Student names:', error);
+            }
+        };
+        fetchStudent();
+    }, []);
+
+    useEffect(() => {
+        const fetchTeachers = async () => {
+            try {
+                const response = await axios.get('http://localhost:9999/Teacher');
+                if (response.data && Array.isArray(response.data)) {
+                    setTeachers(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching Teacher names:', error);
+            }
+        };
+        fetchTeachers();
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Fetch Exam status data
+                const examResponse = await axios.get('http://localhost:9999/Exam');
+                const examData = examResponse.data;
+    
+                // Check the status of Exam_o_CSB01
+                const examCSB01 = examData.find(exam => exam.Exam_o_CSB01 !== undefined);
+                if (examCSB01 && examCSB01.Exam_o_CSB01 === 'เปิด') {
+                    setIsExamOpen(true);
+                } else {
+                    setIsExamOpen(false);
+                    alert('ไม่ได้อยู่ในช่วงยื่นสอบหัวข้อ');
+                    return; // Exit if the exam is not open
+                }
+
+                // Fetch Project data
+                const projectResponse = await axios.get('http://localhost:9999/Project');
+                const projectData = projectResponse.data;
+    
+                // Fetch Exam results data
+                const examResultsResponse = await axios.get('http://localhost:9999/Exam_results');
+                const examResultsData = examResultsResponse.data;
+    
+                if (Array.isArray(projectData) && projectData.length > 0) {
+                    const project = projectData[0]; // Adjust based on actual API response
+    
+                    // Find the corresponding exam result by P_id
+                    const examResult = examResultsData.find(
+                        (result) => result.P_id === project._id
+                    );
+    
+                    setPData({
+                        P_id: project._id || '',
+                        P_name: project.P_name || '',
+                        P_S1: project.P_S1 || '',
+                        P_S2: project.P_S2 || '',
+                        P_T: project.P_T || '',
+                        ExamStatus: examResult ? examResult.Exam_CSB01_status : ''
+                    });
+                } else {
+                    console.error('Unexpected API response:', projectData);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+    
+        fetchData();
+    }, []);
+    
+    // Additional code (related to form handling and submission) remains unchanged
     const handleChangeSelectObject = (event) => {
         const { name, checked } = event.target;
-
-        // Update the state of the corresponding checkbox
         setSelectedValues((prevValues) => ({
             ...prevValues,
             [name]: checked,
         }));
-
-        // Log the updated state
         console.log(`${name} is now ${checked ? 'selected' : 'deselected'}`);
     };
-
-    const [openDialog, setOpenDialog] = useState(false);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        setOpenDialog(true);
-    };
-
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-    };
-
-    const [selectedValue, setSelectedValue] = useState('');
-
-    const handleRadioChange = (e) => {
-        setSelectedValue(e.target.value);
-    };
-
-    const Students = [
-        {
-            "ID": "6304062620061",
-            "Name": "ณัชริกา กันทะสอน"
-        },
-        {
-            "ID": "6304062620062",
-            "Name": "ใจดี ยืมเงิน"
-        },
-        {
-            "ID": "6304062620063",
-            "Name": "สบายดี สบายใจ"
-        },
-        {
-            "ID": "6304062620064",
-            "Name": "สุดสวย สุดหล่อ"
-        },
-        {
-            "ID": "6304062620065",
-            "Name": "ไอ่กล้อง ไอ่อ้วน"
-        },
-        {
-            "ID": "6304062620066",
-            "Name": "แมวเหมียว น่ารัก"
-        },
-        {
-            "ID": "6304062620067",
-            "Name": "มะหมา สุดหล่อ"
-        },
-        {
-            "ID": "6304062620068",
-            "Name": "หนูน้อย น่ารัก"
-        },
-        {
-            "ID": "6304062620069",
-            "Name": "สวัสดีครับ ผมนวย"
-        },
-        {
-            "ID": "6304062620070",
-            "Name": "ไม่มี ตังค์ค่า"
-        }
-    ];
-
-    const Teachers = [
-        {
-            "ID": "NLP",
-            "Name": "ลือพล ไม่น่ารักเลย"
-        },
-        {
-            "ID": "SWK",
-            "Name": "สุวัชชัย ตัวตึง"
-        },
-        {
-            "ID": "KAB",
-            "Name": "คัณฑารัตน์ สุดละเอียด"
-        },
-        {
-            "ID": "CRL",
-            "Name": "เฉียบวุฒิ สุดจ้าบ"
-        },
-        {
-            "ID": "ARN",
-            "Name": "เอิญ ไม่ใจดี"
-        },
-        {
-            "ID": "TNA",
-            "Name": "ธณาภัทร ใจร้าย"
-        },
-        {
-            "ID": "BLP",
-            "Name": "เบญจพร ร้ายกาจ"
-        },
-        {
-            "ID": "NAT",
-            "Name": "ณัฐวุฒิ ช่วยด้วย"
-        },
-        {
-            "ID": "KOB",
-            "Name": "กอบเกียรติ อิหยังวะ"
-        },
-        {
-            "ID": "ANW",
-            "Name": "อนุสรณ์ หนีไป"
-        }
-    ]
-
-    // const [selectedValueName, setSelectedValueName] = useState('');
-
-    // const handleSelectStudentID = (e) => {
-    //     e.preventDefault();
-    //     setOpenDialog(true);
-    // };
+    
+    // Rest of your code
+    
 
     return (
         <MainCard>
@@ -207,16 +337,8 @@ function CSB01() {
                                 </Grid>
                                 <Grid>
                                     <Stack alignItems="center" justifyContent="center" spacing={1} sx={{ mt: 5, ml: 35 }}>
-                                        <Typography
-                                            fontSize='18px'
-                                        >
+                                        <Typography fontSize='18px'>
                                             รหัสนักศึกษา คนที่ 1
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            ชื่อ - สกุล คนที่ 1
                                             <Box
                                                 sx={{
                                                     minWidth: 180,
@@ -233,20 +355,15 @@ function CSB01() {
                                                     <InputLabel id="StudentID-select-label-1">รหัสนักศึกษา</InputLabel>
                                                     <Select
                                                         labelId="StudentID-select-label-1"
-                                                        id="StudentID-select"
-                                                        value={StudentSelect.ID}
+                                                        id="StudentID-select1"
+                                                        name="S_id1"
+                                                        value={SData.S_id1}
                                                         label="รหัสนักศึกษา"
-                                                        onChange={handleChange}
+                                                        onChange={handleSelectChange}
                                                     >
-                                                        {/* <MenuItem value={15}>6304062620061</MenuItem>
-                                                        <MenuItem value={14}>6304062620077</MenuItem>
-                                                        <MenuItem value={13}>6304062620023</MenuItem> */}
-                                                        {Students.filter(student => student.ID !== StudentSelect2.ID).map((student) => (
-                                                            <MenuItem
-                                                                key={student.ID}
-                                                                value={student.ID}
-                                                            >
-                                                                {student.ID}
+                                                        {getFilteredOptions([SData.S_id2]).map((student, index) => (
+                                                            <MenuItem key={index} value={student.S_id}>
+                                                                {student.S_id}
                                                             </MenuItem>
                                                         ))}
                                                     </Select>
@@ -255,25 +372,18 @@ function CSB01() {
                                                     disabled
                                                     id="Name1"
                                                     label="ชื่อ - สกุล"
-                                                    defaultValue="ชื่อ - สกุล"
-                                                    value={StudentSelect.Name}
+                                                    value={studentData.find(student => student.S_id === SData.S_id1)?.S_name || ''}
                                                 />
                                             </Box>
                                         </Typography>
+
                                         <Typography
                                             fontSize='18px'
                                             sx={{
                                                 marginTop: 5,
                                                 marginLeft: 50,
-
                                             }}>
                                             รหัสนักศึกษา คนที่ 2
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            ชื่อ - สกุล คนที่ 2
                                             <Box
                                                 sx={{
                                                     minWidth: 180,
@@ -291,16 +401,14 @@ function CSB01() {
                                                     <Select
                                                         labelId="StudentID-select-label-2"
                                                         id="StudentID-select2"
-                                                        value={StudentSelect2.ID}
+                                                        name="S_id2"
+                                                        value={SData.S_id2}
                                                         label="รหัสนักศึกษา"
-                                                        onChange={handleChange2}
+                                                        onChange={handleSelectChange}
                                                     >
-                                                        {Students.filter(student => student.ID !== StudentSelect.ID).map((student) => (
-                                                            <MenuItem
-                                                                key={student.ID}
-                                                                value={student.ID}
-                                                            >
-                                                                {student.ID}
+                                                        {getFilteredOptions([SData.S_id1]).map((student, index) => (
+                                                            <MenuItem key={index} value={student.S_id}>
+                                                                {student.S_id}
                                                             </MenuItem>
                                                         ))}
                                                     </Select>
@@ -309,11 +417,11 @@ function CSB01() {
                                                     disabled
                                                     id="Name2"
                                                     label="ชื่อ - สกุล"
-                                                    defaultValue="ชื่อ - สกุล"
-                                                    value={StudentSelect2.Name}
+                                                    value={studentData.find(student => student.S_id === SData.S_id2)?.S_name || ''}
                                                 />
                                             </Box>
                                         </Typography>
+
                                     </Stack>
                                 </Grid>
                                 <div>
@@ -335,9 +443,13 @@ function CSB01() {
                                         >
                                             <TextField
                                                 required
-                                                id="Project-name"
-                                                label="ชิ่อโครงงานภาษาอังกฤษ"
-                                            // defaultValue="Project name"
+                                                label="ชื่อโครงงานภาษาอังกฤษ"
+                                                id="P_name"
+                                                value={PData.P_name}
+                                                onChange={handleProjectNameChange}
+                                                error={errors.projectName}
+                                                helperText={errors.projectName ? 'ชื่อโครงงานภาษาอังกฤษจำเป็นต้องกรอก' : ''}
+                                                inputProps={{ pattern: "[A-Za-z ]*" }}
                                             />
                                         </Box>
                                     </Typography>
@@ -370,31 +482,28 @@ function CSB01() {
                                             <FormControlLabel value="Yes" control={<Radio />} label="มี" />
                                             <FormControlLabel value="No" control={<Radio />} label="ไม่มี" sx={{ marginLeft: 10 }} />
                                         </RadioGroup>
-                                    </FormControl><br></br>
+                                    </FormControl>
 
                                     {selectedValue === 'Yes' && (
                                         <FormControl
                                             sx={{
                                                 marginTop: 2,
                                                 marginLeft: 55,
-                                            }}
-                                        >
+                                                minWidth: 180,
+                                                marginRight: 33,
+                                            }}>
+                                            <InputLabel id="teacher-select-label">Teacher</InputLabel>
                                             <Select
+                                                labelId="teacher-select-label"
                                                 id="teacher-select"
-                                                value={selectTeacher.ID}
-                                                defaultValue=""
-                                                displayEmpty
-                                                onChange={handleSelectTeacherChange}
+                                                name="T_id"
+                                                value={TData.T_id}
+                                                label="Teacher"
+                                                onChange={handleSelectChange}
                                             >
-                                                <MenuItem value="" disabled>
-                                                    รายชื่ออาจารย์ที่ปรึกษา
-                                                </MenuItem>
-                                                {Teachers.map((Teacher) => (
-                                                    <MenuItem
-                                                        key={Teacher.ID}
-                                                        value={Teacher.ID}
-                                                    >
-                                                        {Teacher.ID + " " + Teacher.Name}
+                                                {teachers.map((teacher) => (
+                                                    <MenuItem key={teacher.T_id} value={teacher.T_id}>
+                                                        {teacher.T_name}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
@@ -419,56 +528,24 @@ function CSB01() {
                                             marginLeft: 55,
                                         }}
                                     >
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={selectedValues.networks}
-                                                    onChange={handleChangeSelectObject}
-                                                    name="networks"
-                                                />
-                                            }
-                                            label="Networks & Data Communications"
-                                        />
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={selectedValues.graphics}
-                                                    onChange={handleChangeSelectObject}
-                                                    name="graphics"
-                                                />
-                                            }
-                                            label="Graphics & Animation"
-                                        />
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={selectedValues.database}
-                                                    onChange={handleChangeSelectObject}
-                                                    name="database"
-                                                />
-                                            }
-                                            label="Database & Web"
-                                        />
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={selectedValues.ai}
-                                                    onChange={handleChangeSelectObject}
-                                                    name="ai"
-                                                />
-                                            }
-                                            label="Artificial Intelligence"
-                                        />
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={selectedValues.games}
-                                                    onChange={handleChangeSelectObject}
-                                                    name="games"
-                                                />
-                                            }
-                                            label="Games"
-                                        />
+                                        {['networks', 'graphics', 'database', 'ai', 'games'].map((category) => (
+                                            <FormControlLabel
+                                                key={category}
+                                                control={
+                                                    <Checkbox
+                                                        checked={selectedValues[category]}
+                                                        onChange={handleChangeSelectObject}
+                                                        name={category}
+                                                    />
+                                                }
+                                                label={category} 
+                                            />
+                                        ))}
+                                        {errors.atLeastOneCategory && (
+                                            <Typography color="error" sx={{ marginLeft: 55, marginTop: 1 }}>
+                                                ต้องเลือกประเภทของโครงงานอย่างน้อยหนึ่งรายการ
+                                            </Typography>
+                                        )}
                                     </FormGroup>
                                 </div>
                                 <div>
@@ -496,7 +573,11 @@ function CSB01() {
                                             label=""
                                             multiline
                                             maxRows={8}
+                                            error={errors.projectDetails}
+                                            helperText={errors.projectDetails ? 'รายละเอียดของโครงงานต้องกรอก' : ''}
+                                            onChange={(e) => setPData({ ...PData, P_details: e.target.value })}
                                         />
+
                                     </Box>
                                 </div>
                                 <div>
@@ -520,10 +601,12 @@ function CSB01() {
                                                 marginTop: 0,
                                                 marginLeft: 55,
                                             }}
-                                            id="outlined-multiline-flexible"
+                                            id="P_tool"
                                             label=""
                                             multiline
                                             maxRows={8}
+                                            value={PData.P_tool}
+                                            onChange={(e) => setPData({ ...PData, P_tool: e.target.value })}
                                         />
                                     </Box>
                                 </div>

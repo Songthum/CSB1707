@@ -80,36 +80,36 @@ const utilities = {
       icon: icons.IconBrandChrome,
       breadcrumbs: false
     },
-    // {
-    //   id: 'authentication', //สร้างไอดีใหม่ด้วยนะ
-    //   title: 'กรอกคะแนนการสอบ',
-    //   type: 'collapse',
-    //   icon: icons.IconKey,
+    {
+      id: 'authentication', //สร้างไอดีใหม่ด้วยนะ
+      title: 'กรอกคะแนนการสอบ',
+      type: 'collapse',
+      icon: icons.IconKey,
 
-    //   children: [
-    //     {
-    //       id: 'login3', //สร้างไอดีใหม่ด้วยนะ
-    //       title: 'สอบหัวข้อ (CSB01)',
-    //       type: 'item',
-    //       url: '#',
-    //       target: false
-    //     },
-    //     {
-    //       id: 'register3', //สร้างไอดีใหม่ด้วยนะ
-    //       title: 'สอบก้าวหน้า (CSB02)',
-    //       type: 'item',
-    //       url: '/utilities/InputScoreCSB02',
-    //       target: false
-    //     },
-    //     {
-    //       id: 'register4', //สร้างไอดีใหม่ด้วยนะ
-    //       title: 'สอบป้องกัน (CSB03)',
-    //       type: 'item',
-    //       url: '/utilities/InputScoreCSB03',
-    //       target: false
-    //     }
-    //   ]
-    // },
+      children: [
+        {
+          id: 'login3', //สร้างไอดีใหม่ด้วยนะ
+          title: 'สอบหัวข้อ (CSB01)',
+          type: 'item',
+          url: '/utilities/InputScoreCSB02',
+          target: false
+        },
+        {
+          id: 'register3', //สร้างไอดีใหม่ด้วยนะ
+          title: 'สอบก้าวหน้า (CSB02)',
+          type: 'item',
+          url: '/utilities/InputScoreCSB02',
+          target: false
+        },
+        {
+          id: 'register4', //สร้างไอดีใหม่ด้วยนะ
+          title: 'สอบป้องกัน (CSB03)',
+          type: 'item',
+          url: '/utilities/InputScoreCSB03',
+          target: false
+        }
+      ]
+    },
     {
       id: 'sample-page1',
       title: 'อนุมัติคะแนนสอบก้าวหน้า โดยประธานกรรมการสอบ',

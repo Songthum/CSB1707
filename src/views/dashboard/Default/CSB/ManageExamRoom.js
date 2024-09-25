@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { TextField, Select, MenuItem, FormControl, InputLabel, Button, Grid, Typography } from '@mui/material';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import React, { useState, useEffect } from 'react';
+import { TextField, Select, MenuItem, FormControl, InputLabel, Typography, Grid } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -10,30 +9,78 @@ import { gridSpacing } from 'store/constant';
 const ManageExamRoom = () => {
     const [option, setOption] = useState('');
     const [room, setRoom] = useState('');
-    const [numberOfFields, setNumberOfFields] = useState(0);
-    const [numberOfFields2, setNumberOfFields2] = useState(0);
-    const [dayOn1, setDayOn1] = useState(null);
+    const [numberOfFields, setNumberOfFields] = useState('');
+    const [numberOfFields2, setNumberOfFields2] = useState('');
+    const [date, setDate] = useState(null);
+    const [teacherValues, setTeacherValues] = useState([]);
+    const [positionValues, setPositionValues] = useState([]);
+    const [projectValues, setProjectValues] = useState([]);
     const [timeOn1, setTimeOn1] = useState([]);
     const [invalidTimes, setInvalidTimes] = useState([]);
+    const [teachers, setTeachers] = useState([]);
+    const [projects, setProjects] = useState([]);
+
+    useEffect(() => {
+        const fetchTeachers = async () => {
+            try {
+                const response = await fetch('http://localhost:9999/Teacher');
+                const data = await response.json();
+                console.log('Fetched teachers:', data); // Add this line
+                setTeachers(data);
+            } catch (error) {
+                console.error('Error fetching teacher data:', error);
+            }
+        };
+
+        fetchTeachers();
+    }, []);
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await fetch('http://localhost:9999/Project');
+                const data = await response.json();
+                console.log('Fetched projects:', data); // Add this line
+                setProjects(data);
+            } catch (error) {
+                console.error('Error fetching project data:', error);
+            }
+        };
+
+        fetchProjects();
+    }, []);
+
 
     const handleInputChange = (event) => {
-        setNumberOfFields(parseInt(event.target.value) || 0);
+        const value = parseInt(event.target.value) || 0;
+        if (value <= 5) {
+            setNumberOfFields(value);
+            setTeacherValues(Array(value).fill(''));
+            setPositionValues(Array(value).fill(''));
+        } else {
+            alert('จำนวนกรรมการสอบห้ามเกิน 5 คน');
+        }
     };
 
     const handleInputChange2 = (event) => {
-        setNumberOfFields2(parseInt(event.target.value) || 0);
+        const value = parseInt(event.target.value) || 0;
+        if (value <= 20) {
+            setNumberOfFields2(value);
+            setProjectValues(Array(value).fill(''));
+            setTimeOn1(Array(value).fill(''));
+        } else {
+            alert('จำนวนโปรเจคที่สอบห้ามเกิน 20');
+        }
     };
-
-    const [teacherValues, setTeacherValues] = useState(Array(numberOfFields).fill(''));
-    const [positionValues, setPositionValues] = useState(Array(numberOfFields).fill(''));
-    const [ProjectValues, setProjectValues] = useState(Array(numberOfFields2).fill(''));
 
     const handleSelectTeacher = (index) => (event) => {
         const newTeacherValues = [...teacherValues];
-        newTeacherValues[index] = event.target.value;
+        newTeacherValues[index] = event.target.value; // Store the selected teacher ID
         setTeacherValues(newTeacherValues);
+        console.log(newTeacherValues); // This will show the updated teacher values
     };
-
+    
+    
     const handleSelectPosition = (index) => (event) => {
         const newPositionValues = [...positionValues];
         newPositionValues[index] = event.target.value;
@@ -41,7 +88,7 @@ const ManageExamRoom = () => {
     };
 
     const handleSelectProject = (index) => (event) => {
-        const newProjectValues = [...ProjectValues];
+        const newProjectValues = [...projectValues];
         newProjectValues[index] = event.target.value;
         setProjectValues(newProjectValues);
     };
@@ -51,7 +98,6 @@ const ManageExamRoom = () => {
         const newTimeOn1 = [...timeOn1];
         newTimeOn1[index] = newTime;
 
-        // Check for duplicates
         const timeCounts = newTimeOn1.reduce((acc, time) => {
             acc[time] = (acc[time] || 0) + 1;
             return acc;
@@ -64,17 +110,19 @@ const ManageExamRoom = () => {
 
     const getFilteredTeachers = (index) => {
         const selectedTeachers = teacherValues.filter((_, i) => i !== index);
-        return Teacher.filter((teacher) => !selectedTeachers.includes(teacher.ID));
+        return teachers.filter((teacher) => !selectedTeachers.includes(teacher.ID));
     };
+
+
+    const getFilteredProjects = (index) => {
+        const selectedProjects = projectValues.filter((_, i) => i !== index);
+        return projects.filter((project) => !selectedProjects.includes(project.ID));
+    }; console.log(teacherValues);
+
 
     const getFilteredPositions = (index) => {
         const selectedPositions = positionValues.filter((_, i) => i !== index);
         return positionData.filter((position) => !selectedPositions.includes(position.ID) || position.ID !== 'No1');
-    };
-
-    const getFilteredProject = (index) => {
-        const selectedProject = ProjectValues.filter((_, i) => i !== index);
-        return ProjectData.filter((ProjectData) => !selectedProject.includes(ProjectData.ID));
     };
 
     const testData = [
@@ -91,244 +139,166 @@ const ManageExamRoom = () => {
         { ID: '78-617' }
     ];
 
-    const Teacher = [
-        { ID: 'NLP', Name: 'ลือพล ไม่น่ารักเลย' },
-        { ID: 'SWK', Name: 'สุวัชชัย ตัวตึง' },
-        { ID: 'KAB', Name: 'คัณฑารัตน์ สุดละเอียด' },
-        { ID: 'CRL', Name: 'เฉียบวุฒิ สุดจ้าบ' },
-        { ID: 'ARN', Name: 'เอิญ ไม่ใจดี' },
-        { ID: 'TNA', Name: 'ธณาภัทร ใจร้าย' },
-        { ID: 'BLP', Name: 'เบญจพร ร้ายกาจ' },
-        { ID: 'NAT', Name: 'ณัฐวุฒิ ช่วยด้วย' },
-        { ID: 'KOB', Name: 'กอบเกียรติ อิหยังวะ' },
-        { ID: 'ANW', Name: 'อนุสรณ์ หนีไป' }
-    ];
-
     const positionData = [
         { ID: 'No1', Name: 'ประธาน' },
         { ID: 'No2', Name: 'กรรมการ' }
     ];
 
-    const ProjectData = [
-        { ID: 'SP1-01', Name: 'การตรวจสอบจบ' },
-        { ID: 'SP1-02', Name: 'การยื่นสอบปริญญานิพนจ์' },
-        { ID: 'SP1-03', Name: 'โมเดลจำลองอะตอม' },
-        { ID: 'SP1-04', Name: 'AIจับมนุษย์' },
-        { ID: 'SP1-05', Name: 'โปรแกรมปลูกต้นไม้' },
-        { ID: 'SP1-06', Name: 'โปรแกรมออกแบบการนำเสนอ' },
-        { ID: 'SP1-07', Name: 'โปรแกรมคำนวณพื้นที่' },
-        { ID: 'SP1-08', Name: 'การจัดการการสอบสำหรับ CSB' },
-        { ID: 'SP1-09', Name: 'โปรแกรมจองตั๋วรถไฟ' },
-        { ID: 'SP1-10', Name: 'เกมเอาตัวรอดในCS' }
-    ];
+    const getFilteredTimes = (index) => {
+        const selectedTimes = timeOn1.filter((_, i) => i !== index);
+        const availableTimes = ['09:00', '09:15', '09:30', '09:45', '10:00', '10:15', '10:30', '10:45',
+            '11:00', '11:15', '11:30', '11:45', '13:00', '13:15', '13:30', '13:45',
+            '14:00', '14:15', '14:30', '14:45', '15:00', '15:15', '15:30', '15:45'];
+        
+        return availableTimes.filter(time => !selectedTimes.includes(time));
+    };
+    
 
     return (
         <MainCard>
             <Grid container spacing={gridSpacing}>
                 <Grid item xs={12}>
-                    <Grid container alignItems="center" justifyContent="space-between">
-                        <Grid item>
-                            <Grid container direction="column" spacing={1}></Grid>
-                            <Grid container spacing={2}>
-                                {/* Line 1: Select fields for option, room, and day */}
-                                <Grid item xs={12}>
-                                    <Typography sx={{ marginLeft: 110 }}>
-                                        <h1>จัดห้องสอบ</h1>
-                                    </Typography>
-                                    <Typography sx={{ marginLeft: 25, marginTop: 5 }} fontSize={'20px'}>
-                                        รหัสการสอบ
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;
-                                        ห้องสอบ
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        วันที่สอบ
-                                    </Typography>
-                                    <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
-                                        <InputLabel id="option-label">เลือกการสอบ</InputLabel>
-                                        <Select
-                                            label="รหัสการสอบ"
-                                            id="option"
-                                            value={option}
-                                            onChange={(e) => setOption(e.target.value)}
-                                            sx={{ minWidth: 300 }}
-                                        >
-                                            {testData.map((testData) => (
-                                                <MenuItem key={testData.ID} value={testData.ID}>
-                                                    {testData.ID + ' : ' + testData.Name}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                    <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
-                                        <InputLabel id="room-label">ห้องสอบ</InputLabel>
-                                        <Select
-                                            label="ห้องสอบ"
-                                            id="room"
-                                            value={room}
-                                            onChange={(e) => setRoom(e.target.value)}
-                                            sx={{ minWidth: 300 }}
-                                        >
-                                            {roomData.map((roomData) => (
-                                                <MenuItem key={roomData.ID} value={roomData.ID}>
-                                                    {roomData.ID}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                    <FormControl sx={{ ml: 25, minWidth: 120 }}>
-                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                            <DemoContainer components={['DatePicker']}>
-                                                <DatePicker
-                                                    label="วันที่สอบ"
-                                                    value={dayOn1}
-                                                    onChange={(newValue) => setDayOn1(newValue)}
-                                                />
-                                            </DemoContainer>
-                                        </LocalizationProvider>
-                                    </FormControl>
-                                </Grid>
-                                {/* Line 2: Text field for number of fields */}
-                                <Grid item xs={12}>
-                                    <Typography sx={{ marginLeft: 25, marginTop: 3 }} fontSize={'20px'}>
-                                        จำนวนกรรมการสอบ
-                                    </Typography>
-                                    <TextField
-                                        label="จำนวนกรรมการสอบ"
-                                        type="number"
-                                        value={numberOfFields}
-                                        onChange={handleInputChange}
-                                        sx={{ minWidth: 300, ml: 25, mt: 1 }}
-                                    />
-                                </Grid>
-                                {/* Line 3: Show select fields based on the input number */}
-                                {Array.from({ length: numberOfFields }).map((_, index) => (
-                                    <Grid item xs={12} key={index}>
-                                        <Typography sx={{ marginLeft: 25, marginTop: 3 }} fontSize={'20px'}>
-                                            รายชื่อกรรมการสอบ
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;
-                                            ตำแหน่ง
-                                        </Typography>
-                                        <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
-                                            <InputLabel id={`id-label-${index}`}>รายชื่อกรรมการสอบ</InputLabel>
-                                            <Select
-                                                label="รายชื่อกรรมการสอบ"
-                                                id={`id-${index}`}
-                                                sx={{ minWidth: 300 }}
-                                                value={teacherValues[index]}
-                                                onChange={handleSelectTeacher(index)}
-                                            >
-                                                {getFilteredTeachers(index).map((teacher) => (
-                                                    <MenuItem key={teacher.ID} value={teacher.ID}>
-                                                        {teacher.ID + ' ' + teacher.Name}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                        <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
-                                            <InputLabel id={`name-label-${index}`}>ตำแหน่ง</InputLabel>
-                                            <Select
-                                                label="ตำแหน่ง"
-                                                id={`name-${index}`}
-                                                sx={{ minWidth: 300 }}
-                                                value={positionValues[index]}
-                                                onChange={handleSelectPosition(index)}
-                                            >
-                                                {getFilteredPositions(index).map((positionData) => (
-                                                    <MenuItem key={positionData.ID} value={positionData.ID}>
-                                                        {positionData.Name}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                ))}
-
-                                <Grid item xs={12}>
-                                    <Typography sx={{ marginLeft: 25, marginTop: 3 }} fontSize={'20px'}>
-                                        จำนวนโครงงานที่จะสอบ
-                                    </Typography>
-                                    <TextField
-                                        label="จำนวนโครงงานที่จะสอบ"
-                                        type="number"
-                                        value={numberOfFields2}
-                                        onChange={handleInputChange2}
-                                        sx={{ minWidth: 300, ml: 25, mt: 1 }}
-                                    />
-                                </Grid>
-                                {/* Line 3: Show select fields based on the input number */}
-                                {Array.from({ length: numberOfFields2 }).map((_, index) => (
-                                    <Grid item xs={12} key={index}>
-                                        <Typography sx={{ marginLeft: 25, marginTop: 3 }} fontSize={'20px'}>
-                                            รายชื่อโครงงาน
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                            เวลาสอบ
-                                        </Typography>
-                                        <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
-                                            <InputLabel id={`id-label-${index}`}>รายชื่อโครงงาน</InputLabel>
-                                            <Select
-                                                label="รายชื่อโครงงาน"
-                                                id={`id-${index}`}
-                                                sx={{ minWidth: 300 }}
-                                                value={ProjectValues[index]}
-                                                onChange={handleSelectProject(index)}
-                                            >
-                                                {getFilteredProject(index).map((ProjectData) => (
-                                                    <MenuItem key={ProjectData.ID} value={ProjectData.ID}>
-                                                        {ProjectData.ID + ' ' + ProjectData.Name}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                        <FormControl sx={{ mt: 1, ml: 25, minWidth: 120 }}>
-                                            <TextField
-                                                label="เวลาสอบ"
-                                                id={`time-${index}`}
-                                                type="time"
-                                                value={timeOn1[index] || ''}
-                                                onChange={handleSelectTime(index)}
-                                                InputLabelProps={{
-                                                    shrink: true
-                                                }}
-                                                sx={{
-                                                    minWidth: 300,
-                                                    border: invalidTimes[index] ? '3px solid red' : '1px solid #ccc'
-                                                }}
-                                            />
-                                        </FormControl>
-                                    </Grid>
-                                ))}
-                                <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                                    <Button variant="contained" onClick={'#'}>
-                                        Save
-                                    </Button>
-                                </Grid>
-                            </Grid>
+                    <Typography variant="h2" align="center" gutterBottom>จัดห้องสอบ</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                    <Grid container spacing={2}>
+                        {/* Select for test type */}
+                        <Grid item xs={12} md={4}>
+                            <FormControl fullWidth>
+                                <InputLabel>เลือกการสอบ</InputLabel>
+                                <Select value={option} onChange={(e) => setOption(e.target.value)}>
+                                    {testData.map((test) => (
+                                        <MenuItem key={test.ID} value={test.ID}>
+                                            {test.ID + ' : ' + test.Name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </Grid>
+                        {/* Select for exam room */}
+                        <Grid item xs={12} md={4}>
+                            <FormControl fullWidth>
+                                <InputLabel>ห้องสอบ</InputLabel>
+                                <Select value={room} onChange={(e) => setRoom(e.target.value)}>
+                                    {roomData.map((room) => (
+                                        <MenuItem key={room.ID} value={room.ID}>
+                                            {room.ID}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        {/* Date picker */}
+                        <Grid item xs={12} md={4}>
+                            <FormControl fullWidth>
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DatePicker
+                                        label="วันที่สอบ"
+                                        value={date}
+                                        onChange={(newValue) => setDate(newValue)}
+                                        renderInput={(params) => <TextField {...params} fullWidth />}
+                                    />
+                                </LocalizationProvider>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={3} mt={3}>
+                        <Grid item xs={12}>
+                            <Typography variant="h6" gutterBottom>
+                                จำนวนกรรมการสอบ
+                            </Typography>
+                            <TextField
+                                label="จำนวนกรรมการสอบ"
+                                type="number"
+                                value={numberOfFields}
+                                onChange={handleInputChange}
+                            />
+                        </Grid>
+                        {Array.from({ length: numberOfFields }).map((_, index) => (
+                            <Grid item xs={12} md={6} key={index}>
+                                <Typography variant="h6" gutterBottom>
+                                    กรรมการคนที่ {index + 1}
+                                </Typography>
+                                {/* Teacher selection */}
+                                <FormControl sx={{ width: '300px' }}>
+                                    <InputLabel>เลือกอาจารย์</InputLabel>
+                                    <Select
+    value={teacherValues[index] || ''} // Default to empty if no selection
+    onChange={handleSelectTeacher(index)}
+>
+    {getFilteredTeachers(index).map((teacher) => (
+        <MenuItem key={teacher.ID} value={teacher.ID}>
+            {teacher.T_name}
+        </MenuItem>
+    ))}
+</Select>
+
+                                </FormControl>
+                                {/* Position selection */}
+                                <FormControl sx={{ width: '150px' }}>
+                                    <InputLabel>ตำแหน่ง</InputLabel>
+                                    <Select
+                                        value={positionValues[index] || ''}
+                                        onChange={handleSelectPosition(index)}
+                                    >
+                                        {getFilteredPositions(index).map((position) => (
+                                            <MenuItem key={position.ID} value={position.ID}>
+                                                {position.Name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        ))}
+                        {/* Number of projects */}
+                        <Grid item xs={12}>
+                            <Typography variant="h6" gutterBottom>
+                                จำนวนโปรเจคที่สอบ
+                            </Typography>
+                            <TextField
+                                label="จำนวนโปรเจคที่สอบ"
+                                type="number"
+                                value={numberOfFields2}
+                                onChange={handleInputChange2}
+                            />
+                        </Grid>
+                        {Array.from({ length: numberOfFields2 }).map((_, index) => (
+                            <Grid item xs={12} md={6} key={index}>
+                                <Typography variant="h6" gutterBottom>
+                                    โปรเจคที่ {index + 1}
+                                </Typography>
+                                {/* Project selection */}
+                                <FormControl sx={{ width: '300px' }}>
+                                    <InputLabel>เลือกโปรเจค</InputLabel>
+                                    <Select
+                                        value={projectValues[index] || ''}
+                                        onChange={handleSelectProject(index)}
+                                    >
+                                        {getFilteredProjects(index).map((project) => (
+                                            <MenuItem key={project.ID} value={project.ID}>
+                                                {project.P_name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                {/* Time selection */}
+                                <FormControl sx={{ width: '150px' }}>
+    <InputLabel>เวลาสอบ</InputLabel>
+    <Select
+        value={timeOn1[index] || ''}
+        onChange={handleSelectTime(index)}
+        error={invalidTimes[index]}
+    >
+        {getFilteredTimes(index).map((time) => (
+            <MenuItem key={time} value={time}>
+                {time}
+            </MenuItem>
+        ))}
+    </Select>
+</FormControl>
+
+                            </Grid>
+                        ))}
                     </Grid>
                 </Grid>
             </Grid>
@@ -337,4 +307,3 @@ const ManageExamRoom = () => {
 };
 
 export default ManageExamRoom;
-

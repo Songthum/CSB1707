@@ -83,14 +83,15 @@ const dashboard = {
       icon: icons.IconDashboard,
       breadcrumbs: false
     },
-    {
-      id: 'default',
-      title: 'Dashboard',
-      type: 'item',
-      url: '/',
-      icon: icons.IconDashboard,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'default16',
+    //   title: 'นักศึกษาที่ยังไม่มีที่ปรึกษา',
+    //   type: 'item',
+    //   url: '/dashboard/CSB/Detail',
+    //   icon: icons.IconDashboard,
+    //   breadcrumbs: false
+    // },
+    
   ]
 };
 

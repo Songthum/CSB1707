@@ -1,35 +1,46 @@
-import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { Grid } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+import TextField from '@mui/material/TextField';
 
-const RemainingStudentsName = () => {
+function RemainingStudentsName() {
+    const [studentData, setStudentData] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const students = [
-        { StudentID: '6004062620022', name: 'สาวสวย บ้านนา', status: 'ไม่สำเร็จโปรเจค 1', link: '#' },
-        { StudentID: '6104062620032', name: 'หนุ่มหล่อ ชาวสวน', status: 'ไม่สำเร็จโปรเจค 1', link: '#' },
-        { StudentID: '6104062620043', name: 'อุดมณ์ สมบูรณ์', status: 'ไม่สำเร็จโปรเจค 1', link: '#' },
-        { StudentID: "6204062620061", name: "กมลเนตร สืบสกุล", status: 'ไม่สำเร็จโปรเจค 2', link: '#' },
-        { StudentID: "6204062620062", name: "สมร สนองใจ", status: 'ไม่สำเร็จโปรเจค 1', link: '#' },
-        { StudentID: "6204062620063", name: "สงสัย ใครดี", status: 'ไม่สำเร็จโปรเจค 2', link: '#' },
-        { StudentID: "6204062620064", name: "ฟ้าสวย สดใส", status: 'ไม่สำเร็จโปรเจค 2', link: '#' },
-        { StudentID: "6204062620065", name: "นฤมล สุขใจ", status: 'ไม่สำเร็จโปรเจค 1' , link: '#'},
-        { StudentID: "6204062620066", name: "ซีซ่า ซี๊ดซ๊าด", status: 'ไม่สำเร็จโปรเจค 2', link: '#' },
-        { StudentID: "6204062620067", name: "มะหมา สุดหล่อ", status: 'ไม่สำเร็จโปรเจค 1', link: '#' },
-        { StudentID: "6204062620068", name: "หนูน้อย น่ารัก", status: 'ไม่สำเร็จโปรเจค 2', link: '#' },
-        { StudentID: "6204062620069", name: "สวัสดีครับ ผมนวย", status: 'ไม่สำเร็จโปรเจค 2', link: '#' },
-        { StudentID: "6204062620070", name: "ไม่มี ตังค์ค่า", status: 'ไม่สำเร็จโปรเจค 1', link: '#' }
-    ];
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://localhost:9999/students');
+                if (response.data && Array.isArray(response.data)) {
+                    const uniqueStudents = Array.from(new Map(response.data.map(item => [item.S_id, item])).values());
+                    setStudentData(uniqueStudents);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        fetchData();
+    }, []);
+
+    // Filter students based on S_match being 'แยกคู่โครงงาน' or S_match being undefined
+    const filteredStudentData = studentData.filter(student => 
+        (student.S_match === 'แยกคู่โครงงาน' || !student.S_match) &&
+        (student.S_name.toLowerCase().includes(searchTerm.toLowerCase()) || student.S_id.includes(searchTerm))
+    );
+
+    const remain = filteredStudentData.map(item => ({
+        id: uuidv4(),
+        StudentID: item.S_id,
+        name: item.S_name,
+    }));
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
     };
-
-    const filteredStudents = students.filter(student =>
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.StudentID.includes(searchTerm)
-    );
 
     return (
         <MainCard>
@@ -37,9 +48,8 @@ const RemainingStudentsName = () => {
                 <Grid item xs={12}>
                     <Grid container alignItems="center" justifyContent="space-between">
                         <Grid item>
-                            <Grid container direction="column" spacing={1}></Grid>
-                            <div style={{ textAlign: 'center', marginTop: '50px' }}>
-                                <h2>รายชื่อนักศึกษา CSB ที่ตกค้าง</h2>
+                            <div>
+                                <h1>รายชื่อนักศึกษา CSB ที่ตกค้าง</h1>
                                 <TextField
                                     label="ค้นหา"
                                     variant="outlined"
@@ -47,29 +57,29 @@ const RemainingStudentsName = () => {
                                     value={searchTerm}
                                     onChange={handleSearch}
                                 />
-                                <TableContainer component={Paper}>
+                                <TableContainer>
                                     <Table>
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell>ลำดับ</TableCell>
+                                                <TableCell>ลำดับที่</TableCell>
                                                 <TableCell>รหัสนักศึกษา</TableCell>
-                                                <TableCell>ชื่อ นามสกุล</TableCell>
-                                                <TableCell>สถานะโครงงาน</TableCell>
-                                                <TableCell>ลิงค์</TableCell>
+                                                <TableCell>ชื่อ-สกุล</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {filteredStudents.map((student, index) => (
-                                                <TableRow key={student.id}>
-                                                    <TableCell>{index + 1}</TableCell>
-                                                    <TableCell>{student.StudentID}</TableCell>
-                                                    <TableCell>{student.name}</TableCell>
-                                                    <TableCell>{student.status}</TableCell>
-                                                    <TableCell>
-                                                        <Button variant="contained" color="primary" href={student.link} target="_blank">ดูรายละเอียด</Button>
-                                                    </TableCell>
+                                            {remain.length > 0 ? (
+                                                remain.map((item, index) => (
+                                                    <TableRow key={item.id}>
+                                                        <TableCell>{index + 1}</TableCell>
+                                                        <TableCell>{item.StudentID}</TableCell>
+                                                        <TableCell>{item.name}</TableCell>
+                                                    </TableRow>
+                                                ))
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={3}>No data available</TableCell>
                                                 </TableRow>
-                                            ))}
+                                            )}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
@@ -80,6 +90,6 @@ const RemainingStudentsName = () => {
             </Grid>
         </MainCard>
     );
-};
+}
 
 export default RemainingStudentsName;

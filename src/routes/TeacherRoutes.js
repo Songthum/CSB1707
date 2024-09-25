@@ -20,6 +20,7 @@ const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
 const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
 //ยูเพิ่ม
+const InputScoreCSB01Page = Loadable(lazy(() => import('views/utilities/InputScoreCSB01')));
 const InputScoreCSB02Page = Loadable(lazy(() => import('views/utilities/InputScoreCSB02')));
 const InputScoreCSB03Page = Loadable(lazy(() => import('views/utilities/InputScoreCSB03')));
 const ChairmanScoreCSB02Page = Loadable(lazy(() => import('views/utilities/ChairmanScoreCSB02')));
@@ -44,6 +45,10 @@ const TeaherRoutes = {
   path: '/teacher',
   element: <TeacherLayout />,
   children: [
+    {
+      path: 'teacher/utilities/InputScoreCSB01',
+      element: <InputScoreCSB01Page />
+    },
     {
       path: 'teacher/utilities/InputScoreCSB02',
       element: <InputScoreCSB02Page />

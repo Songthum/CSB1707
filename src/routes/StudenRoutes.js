@@ -38,6 +38,9 @@ const CSB01Page = Loadable(lazy(() => import('views/sample-page/CSB01')));
 const CSB02Page = Loadable(lazy(() => import('views/sample-page/CSB02')));
 const CSB03Page = Loadable(lazy(() => import('views/sample-page/CSB03')));
 const CheckAllStatusPage = Loadable(lazy(() => import('views/sample-page/CheckAllStatus')));
+const ProjectrequestPage = Loadable(lazy(() => import('views/sample-page/Projectrequest')));
+
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const StudenRoutes = {
@@ -71,6 +74,10 @@ const StudenRoutes = {
     {
       path: 'studen/sample-page/CheckAllStatus',
       element: <CheckAllStatusPage />
+    },
+    {
+      path: 'studen/sample-page/Projectrequest',
+      element: <ProjectrequestPage />
     },
   ]
 };

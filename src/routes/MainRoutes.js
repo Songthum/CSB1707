@@ -13,6 +13,8 @@ const RemainingStudentsNamePage = Loadable(lazy(() => import('views/dashboard/De
 const ManageExamSPPage = Loadable(lazy(() => import('views/dashboard/Default/CSB/ManageExamSP')));
 const ManageExamRoomPage = Loadable(lazy(() => import('views/dashboard/Default/CSB/ManageExamRoom')));
 const SummaryExamPage = Loadable(lazy(() => import('views/dashboard/Default/CSB/SummaryExam')));
+const DetailPage =  Loadable(lazy(() => import('views/dashboard/Default/CSB/Detail')));
+const SeparationprojectlPage =  Loadable(lazy(() => import('views/dashboard/Default/CSB/Separationproject')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -73,6 +75,14 @@ const MainRoutes = {
     {
       path: 'staff/dashboard/CSB/SummaryExam',
       element: <SummaryExamPage />
+    },
+    {
+      path: 'staff/dashboard/CSB/detail',
+      element: <DetailPage />
+    },
+    {
+      path: 'staff/dashboard/CSB/Separationproject',
+      element: <SeparationprojectlPage />
     },
   ]
 };

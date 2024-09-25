@@ -9,7 +9,7 @@ import { Stack } from '@mui/system';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
-
+import axios from 'axios';
 import { Grid } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
@@ -149,9 +149,10 @@ function EvaluateProject() {
     { id: 8, name: 'ผลการประเมิน', score: '' },
   ]);
 
-  const [checkedState, setCheckedState] = useState(
-    Data3.map(() => ({ yes: false, no: false }))
-  );
+  // const [checkedState, setCheckedState] = useState(
+  //   Data3.map(() => ({ yes: false, no: false }))
+  // );
+  // console.log(checkedState);
 
   const handleCheckboxChange = (id, type) => {
     setData3(prevData =>
@@ -162,6 +163,10 @@ function EvaluateProject() {
       )
     );
   };
+  // console.log(Data3);
+  Data3.forEach(function (element) {
+    console.log(element.score);
+  });
 
   const updateFinalScore = () => {
     const countPass = Data3
@@ -193,8 +198,28 @@ function EvaluateProject() {
   useEffect(() => {
     updateFinalScore();
   }, [Data3]);
-  
 
+  const saveScore = async () => {
+    const lastScore = Data3[Data3.length - 1].score;
+    tableData[selectedRow]?.status === 'CSB01'
+    // const lastTableData = tableData[tableData.length - 1];
+    console.log("lol", tableData[tableData.status])
+
+    try {
+      const response = await axios.post('http://localhost:9999/Exam_results', {
+        // Er_name: tableData.status,
+        Er_results: lastScore,
+      });
+
+      if (response.status === 200) {
+        console.log('Score saved successfully!');
+      } else {
+        console.error('Failed to save score');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   const [openPopup, setOpenPopup] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -205,12 +230,15 @@ function EvaluateProject() {
     setSelectedRow(index);
   };
 
-  const handleSavePopup = () => {
+  const handleSavePopup = (e) => {
+    handleSubmit(e);
     setOpenPopup(false);
+    handleClosePopup();
     const updatedData = [...tableData];
     updatedData[selectedRow].isRed = false;
     updatedData[selectedRow].isDisabled = true;
     setTableData(updatedData);
+    saveScore();
   };
 
   const handleClosePopup = () => {
@@ -236,15 +264,14 @@ function EvaluateProject() {
   };
 
 
-  const [ProjectSelect, setProjectSelect] = useState('');
+  // const [ProjectSelect, setProjectSelect] = useState('');
   const [ProjectSelect2, setProjectSelect2] = useState('');
   // const [Data, setData] = useState(data);
   // const [Data2, setData2] = useState(data2);
-  const [FormData, setFormData] = useState('');
 
-  const handleChange = (event) => {
-    setProjectSelect(project.find(person => person.ID === event.target.value));
-  };
+  // const handleChange = (event) => {
+  //   setProjectSelect(project.find(person => person.ID === event.target.value));
+  // };
 
   const handleNameChange = (id, newScore) => {
     setData(prevItems =>
@@ -257,13 +284,6 @@ function EvaluateProject() {
   };
 
   const [openDialog, setOpenDialog] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Perform any action with the linkValue, such as redirecting to the provided link
-    // For example: window.location.href = linkValue;
-    setOpenDialog(true);
-  };
 
   // Function to handle closing the dialog
   const handleCloseDialog = () => {
@@ -388,6 +408,112 @@ function EvaluateProject() {
   };
 
 
+  // const router = useRouter();
+
+  // State for form data
+  const [formData, setFormData] = useState({
+    Er_name: '',
+    Er_results: '',
+    Er_com: '',
+    Er_status: '',
+    Er_date: '',
+    Er_time: ''
+  });
+
+  // State for subject names fetched from the database
+  const [examscores, setExamscores] = useState([]);
+
+  // State for confirmation dialog
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchExamscores = async () => {
+      try {
+        const response = await axios.get('http://localhost:9999/Exam_results');
+        if (response.data && Array.isArray(response.data)) {
+          setExamscores(response.data.map(item => item.Er_name));
+        }
+      } catch (error) {
+        console.error('Error fetching subject names:', error);
+      }
+    };
+
+    fetchExamscores();
+  }, []);
+
+  // Handle form input changes
+  const handleChange2 = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:9999/Exam_results', formData);
+      console.log('Subject added:', response.data);
+      alert("Subject added successfully!");
+      // Reset form after successful submission
+      setFormData({
+        Er_name: '',
+        Er_results: '',
+        Er_com: '',
+        Er_status: '',
+        Er_date: '',
+        Er_time: ''
+      });
+    } catch (error) {
+      console.error('Error adding subject:', error);
+      alert("Failed to add subject. Please try again later.");
+    }
+  };
+
+  // const handleConfirm = (e) => {
+  //   handleSubmit(e);
+  //   handleClosePopup();
+  // };
+
+  // // return/
+  // // <Button onClick={handleConfirm} color="primary" autoFocus>
+  // //                             Confirm
+  // //                         </Button>
+
+  const [ProjectSelect, setProjectSelect] = useState({
+    ID: '',
+    Name: '',
+    SID: '',
+    SName: '',
+    SID2: '',
+    SName2: '',
+    TID: '',
+    TName: '',
+  });
+
+  // Handle change function to update the selected project
+  const handleChange = (event) => {
+    const selectedProjectName = event.target.value;
+    const selectedProject = project.find((proj) => proj.Name === selectedProjectName);
+
+    // Update the state with the selected project's details
+    if (selectedProject) {
+      setProjectSelect(selectedProject);
+    } else {
+      setProjectSelect({
+        ID: '',
+        Name: '',
+        SID: '',
+        SName: '',
+        SID2: '',
+        SName2: '',
+        TID: '',
+        TName: '',
+      });
+    }
+  };
+
+
+
+
   return (
     <MainCard>
       <Grid container spacing={gridSpacing}>
@@ -403,44 +529,34 @@ function EvaluateProject() {
                   <DialogContent sx={{ minWidth: 1000 }}>
                     {selectedRow !== null && (
                       <>
+
+
                         {tableData[selectedRow]?.status === 'CSB01' && (
                           <>
                             <div>
-                              <Box fontSize='18px' sx={{ marginTop: 5 }}>
+                              <Box fontSize="18px" sx={{ marginTop: 5 }}>
                                 <h1>แบบประเมินหัวข้อโครงงานพิเศษ</h1>
-                                {/* Select field */}
-                                <p>
-                                  รหัสโครงงาน
-                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                  ชื่อโครงงาน
-                                </p>
+                                {/* Select field for project name */}
+                                <p>เลือกชื่อโครงงาน</p>
                                 <FormControl>
-                                  <InputLabel id="ProjectID-select-label">ProjectID</InputLabel>
+                                  <InputLabel id="ProjectName-select-label">ชื่อโครงงาน</InputLabel>
                                   <Select
-                                    labelId="ProjectID-select-label"
-                                    value={ProjectSelect.ID}
+                                    labelId="ProjectName-select-label"
+                                    value={ProjectSelect?.Name || ""}
                                     onChange={handleChange}
-                                    label="ProjectID"
+                                    label="ชื่อโครงงาน"
                                     margin="normal"
-                                    row
-                                    sx={{ minWidth: 150 }}
+                                    sx={{ minWidth: 250 }}
                                   >
-                                    {project.filter(project => project.ID !== ProjectSelect2.ID).map((project) => (
-                                      <MenuItem key={project.ID} value={project.ID}>
-                                        {project.ID}
-                                      </MenuItem>
-                                    ))}
+                                    {project
+                                      .filter((proj) => proj.ID !== ProjectSelect2.ID) // Adjust filtering if needed
+                                      .map((proj) => (
+                                        <MenuItem key={proj.ID} value={proj.Name}>
+                                          {proj.Name}
+                                        </MenuItem>
+                                      ))}
                                   </Select>
                                 </FormControl>
-                                <TextField
-                                  disabled
-                                  id="Name"
-                                  label="ชื่อโครงงาน"
-                                  defaultValue="ชื่อโครงงาน"
-                                  value={ProjectSelect.Name}
-                                  sx={{ '& > :not(style)': { ml: 5, width: '50ch' } }}
-                                />
                                 <br />
 
                                 {/* Disabled text fields */}
@@ -448,43 +564,39 @@ function EvaluateProject() {
                                 <TextField
                                   id="SID1"
                                   label="รหัสนักศึกษาคนที่ 1"
-                                  defaultValue="รหัสนักศึกษาคนที่ 1"
                                   value={ProjectSelect.SID}
                                   disabled
-                                  sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
+                                  sx={{ "& > :not(style)": { mr: 5, ml: 5, width: "25ch" } }}
                                 />
                                 <TextField
                                   id="SName1"
                                   label="ชื่อ-สกุลนักศึกษาคนที่ 1"
-                                  defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 1"
                                   value={ProjectSelect.SName}
                                   disabled
-                                  sx={{ '& > :not(style)': { mr: 0, width: '30ch' } }}
-                                /><br />
+                                  sx={{ "& > :not(style)": { width: "30ch" } }}
+                                />
+                                <br />
                                 <TextField
                                   id="SID2"
                                   label="รหัสนักศึกษาคนที่ 2"
-                                  defaultValue="รหัสนักศึกษาคนที่ 2"
                                   value={ProjectSelect.SID2}
                                   disabled
-                                  sx={{ '& > :not(style)': { mr: 5, ml: 5, mt: 3, width: '25ch' } }}
+                                  sx={{ "& > :not(style)": { mr: 5, ml: 5, mt: 3, width: "25ch" } }}
                                 />
                                 <TextField
                                   id="SName2"
                                   label="ชื่อ-สกุลนักศึกษาคนที่ 2"
-                                  defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 2"
                                   value={ProjectSelect.SName2}
                                   disabled
-                                  sx={{ '& > :not(style)': { mt: 3, width: '30ch' } }}
+                                  sx={{ "& > :not(style)": { mt: 3, width: "30ch" } }}
                                 />
                                 <p>อาจารย์ที่ปรึกษา</p>
                                 <TextField
                                   id="TName"
                                   label="ชื่ออาจารย์ที่ปรึกษา"
-                                  defaultValue="ชื่ออาจารย์ที่ปรึกษา"
                                   value={ProjectSelect.TName}
                                   disabled
-                                  sx={{ '& > :not(style)': { mr: 5, ml: 5, width: '25ch' } }}
+                                  sx={{ "& > :not(style)": { mr: 5, ml: 5, width: "25ch" } }}
                                 />
                               </Box>
                               {/* Table for entering scores */}
@@ -513,29 +625,24 @@ function EvaluateProject() {
                                         </TableCell>
                                         <TableCell>
                                           {item.id === 8 ? (
-                                            <TextField
-                                              value={item.score}
-                                              disabled
-                                              fullWidth
-                                              margin="none"
-                                            />
+                                            <TextField value={item.score} disabled fullWidth margin="none" />
                                           ) : (
                                             <div>
                                               <label htmlFor={`pass-${index}`}>
                                                 <input
                                                   type="radio"
                                                   id={`pass-${index}`}
-                                                  checked={item.score === 'ผ่าน'}
-                                                  onChange={() => handleCheckboxChange(item.id, 'yes')}
+                                                  checked={item.score === "ผ่าน"}
+                                                  onChange={() => handleCheckboxChange(item.id, "yes")}
                                                 />
-                                                ผ่านการ
+                                                ผ่าน
                                               </label>
                                               <label htmlFor={`fail-${index}`}>
                                                 <input
                                                   type="radio"
                                                   id={`fail-${index}`}
-                                                  checked={item.score === 'ไม่ผ่าน'}
-                                                  onChange={() => handleCheckboxChange(item.id, 'no')}
+                                                  checked={item.score === "ไม่ผ่าน"}
+                                                  onChange={() => handleCheckboxChange(item.id, "no")}
                                                 />
                                                 ไม่ผ่าน
                                               </label>
@@ -556,116 +663,91 @@ function EvaluateProject() {
                                   </DialogActions>
                                 </Dialog>
                               </TableContainer>
-                              <Stack alignItems="center" justifyContent="center" fontSize='18px' sx={{ marginTop: 3 }} />
+                              <Stack alignItems="center" justifyContent="center" fontSize="18px" sx={{ marginTop: 3 }} />
                             </div>
                           </>
                         )}
 
 
 
-
                         {tableData[selectedRow].status === 'CSB02' && (
                           <>
                             <div>
-
                               <Box
-                                fontSize='18px'
+                                fontSize="18px"
                                 sx={{
                                   marginTop: 5,
-                                  //marginLeft: 50,
-
                                 }}
                               >
                                 <h1>แบบประเมินโครงงานพิเศษ 1 (สอบก้าวหน้า)</h1>
                                 {/* Select field */}
                                 <p>
-                                  รหัสโครงงาน
-                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                   ชื่อโครงงาน
                                 </p>
                                 <FormControl>
-                                  <InputLabel id="ProjectID-select-label">ProjectID</InputLabel>
+                                  <InputLabel id="ProjectName-select-label">ชื่อโครงงาน</InputLabel>
                                   <Select
-                                    labelId="ProjectID-select-label"
-                                    value={ProjectSelect.ID}
+                                    labelId="ProjectName-select-label"
+                                    value={ProjectSelect.Name}
                                     onChange={handleChange}
-                                    label="ProjectID"
+                                    label="ชื่อโครงงาน"
                                     margin="normal"
-                                    row
                                     sx={{
-                                      minWidth: 150,
-                                      //marginRight: 33,
+                                      minWidth: 250,
                                     }}
                                   >
-                                    {project.filter(project => project.ID !== ProjectSelect2.ID).map((project) => (
-                                      <MenuItem
-                                        key={project.ID}
-                                        value={project.ID}
-                                      >
-                                        {project.ID}
-                                      </MenuItem>
-                                    ))}
+                                    {project
+                                      .filter((project) => project.ID !== ProjectSelect2.ID)
+                                      .map((project) => (
+                                        <MenuItem key={project.ID} value={project.Name}>
+                                          {project.Name}
+                                        </MenuItem>
+                                      ))}
                                   </Select>
                                 </FormControl>
-                                <TextField
-                                  disabled
-                                  id="Name"
-                                  label="ชื่อโครงงาน"
-                                  defaultValue="ชื่อโครงงาน"
-                                  value={ProjectSelect.Name}
-                                  sx={{
-                                    '& > :not(style)': { ml: 5, width: '50ch' },
-                                  }}
-                                />
-                                <br></br>
 
                                 {/* Disabled text fields */}
                                 <p>โดย</p>
                                 <TextField
                                   label="รหัสนักศึกษาคนที่ 1"
-                                  defaultValue="รหัสนักศึกษาคนที่ 1"
-                                  value={ProjectSelect.SID}
+                                  value={ProjectSelect.SID || ''}
                                   disabled
                                   sx={{
-                                    '& > :not(style)': { mr: 5, ml: 5, width: '25ch' },
+                                    "& > :not(style)": { mr: 5, ml: 5, width: '25ch' },
                                   }}
                                 />
                                 <TextField
                                   label="ชื่อ-สกุลนักศึกษาคนที่ 1"
-                                  defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 1"
-                                  value={ProjectSelect.SName}
+                                  value={ProjectSelect.SName || ''}
                                   disabled
                                   sx={{
-                                    '& > :not(style)': { mr: 0, width: '30ch' },
+                                    "& > :not(style)": { mr: 0, width: '30ch' },
                                   }}
-                                /><br></br>
+                                />
+                                <br></br>
                                 <TextField
                                   label="รหัสนักศึกษาคนที่ 2"
-                                  defaultValue="รหัสนักศึกษาคนที่ 2"
-                                  value={ProjectSelect.SID2}
+                                  value={ProjectSelect.SID2 || ''}
                                   disabled
                                   sx={{
-                                    '& > :not(style)': { mr: 5, ml: 5, mt: 3, width: '25ch' },
+                                    "& > :not(style)": { mr: 5, ml: 5, mt: 3, width: '25ch' },
                                   }}
                                 />
                                 <TextField
                                   label="ชื่อ-สกุลนักศึกษาคนที่ 2"
-                                  defaultValue="ชื่อ-สกุลนักศึกษาคนที่ 2"
-                                  value={ProjectSelect.SName2}
+                                  value={ProjectSelect.SName2 || ''}
                                   disabled
                                   sx={{
-                                    '& > :not(style)': { mt: 3, width: '30ch' },
+                                    "& > :not(style)": { mt: 3, width: '30ch' },
                                   }}
                                 />
-                                <p>อาจารย์ที่ปีกษา</p>
+                                <p>อาจารย์ที่ปรึกษา</p>
                                 <TextField
                                   label="ชื่ออาจารย์ที่ปรึกษา"
-                                  defaultValue="ชื่ออาจารย์ที่ปรึกษา"
-                                  value={ProjectSelect.TName}
+                                  value={ProjectSelect.TName || ''}
                                   disabled
                                   sx={{
-                                    '& > :not(style)': { mr: 5, ml: 5, width: '25ch' },
+                                    "& > :not(style)": { mr: 5, ml: 5, width: '25ch' },
                                   }}
                                 />
                               </Box>
@@ -692,7 +774,6 @@ function EvaluateProject() {
                                           <TextField
                                             value={item.score}
                                             onChange={(e) => handleChange4(item.id, 'score', e.target.value)}
-                                            // onChange={(e) => handleChange2(item.id, e.target.value)}
                                             disabled={item.name === 'คะแนนรวม'}
                                             type="number"
                                             fullWidth
@@ -716,15 +797,15 @@ function EvaluateProject() {
                               <Stack
                                 alignItems="center"
                                 justifyContent="center"
-                                fontSize='18px'
+                                fontSize="18px"
                                 sx={{
                                   marginTop: 3,
                                 }}
-                              >
-                              </Stack>
+                              ></Stack>
                             </div>
                           </>
                         )}
+
 
 
 

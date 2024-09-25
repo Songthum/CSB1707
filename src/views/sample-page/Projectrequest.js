@@ -4,7 +4,7 @@ import { Grid } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
 
-function RequestAdvisor() {
+function Projectrequest() {
     const [tableData, setTableData] = useState([]);
     const [openPopup, setOpenPopup] = useState(false);
     const [openAcceptDialog, setOpenAcceptDialog] = useState(false);
@@ -64,7 +64,7 @@ function RequestAdvisor() {
     const handleConfirmAccept = () => {
         if (selectedProject && selectedProject._id) {
             console.log(`Accept advisor for project ID: ${selectedProject._id}`);
-            
+    
             const url = `http://localhost:9999/Project/${selectedProject._id}`;
             fetch(url, {
                 method: 'PUT', 
@@ -74,6 +74,7 @@ function RequestAdvisor() {
                 body: JSON.stringify({
                     P_status: 'กำลังดำเนินการ',
                     P_T: selectedProject.P_T, 
+                    S_match: selectedProject.P_S1 // Post student's name to S_match
                 }),
             })
             .then(response => {
@@ -97,18 +98,14 @@ function RequestAdvisor() {
     
     const handleConfirmReject = () => {
         if (selectedProject && selectedProject._id) {
-            console.log(`Reject advisor for project ID: ${selectedProject._id}`);
-            
+            console.log(`Reject advisor and delete project ID: ${selectedProject._id}`);
+    
             const url = `http://localhost:9999/Project/${selectedProject._id}`;
             fetch(url, {
-                method: 'PUT', 
+                method: 'DELETE', 
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    P_T: '', 
-                    P_status: 'ไม่มีที่ปรึกษา', // Set status to 'ไม่มีที่ปรึกษา'
-                }),
+                }
             })
             .then(response => {
                 if (!response.ok) {
@@ -121,13 +118,13 @@ function RequestAdvisor() {
                 handleCloseRejectDialog();
             })
             .catch(error => {
-                console.error('Error updating project:', error);
+                console.error('Error deleting project:', error);
             });
         } else {
             console.error('Selected project or project ID is missing');
         }
     };
-
+    
     const handleCloseAcceptedAdvisorDialog = () => {
         setOpenAcceptedAdvisorDialog(false);
     };
@@ -140,15 +137,14 @@ function RequestAdvisor() {
                         <Grid item>
                             <Grid container direction="column" spacing={1}></Grid>
                             <div>
-                                <h1>สถานะคำร้องขอเป็นอาจารย์ที่ปรึกษา</h1>
+                                <h1>คำร้องคู่โครงงาน</h1>
                                 <TableContainer>
                                     <Table>
                                         <TableHead>
                                             <TableRow>
                                                 <TableCell>ลำดับที่</TableCell>
                                                 <TableCell>ชื่อโครงงาน</TableCell>
-                                                <TableCell>นักศึกษาคนที่ 1</TableCell>
-                                                <TableCell>นักศึกษาคนที่ 2</TableCell>
+                                                <TableCell>โดย</TableCell>
                                                 <TableCell>รายละเอียดโครงงาน</TableCell>
                                                 <TableCell>การตอบสนอง</TableCell>
                                             </TableRow>
@@ -160,13 +156,12 @@ function RequestAdvisor() {
                                                         <TableCell>{index + 1}</TableCell>
                                                         <TableCell>{row.P_name}</TableCell>
                                                         <TableCell>{row.P_S1}</TableCell>
-                                                        <TableCell>{row.P_S2}</TableCell>
                                                         <TableCell>
                                                             <Button onClick={() => handlePopupClick(row)}>ดูรายละเอียด</Button>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <Button onClick={() => handleOpenAcceptDialog(row)}>รับเป็นที่ปรึกษา</Button>
-                                                            <Button onClick={() => handleOpenRejectDialog(row)}>ไม่รับเป็นที่ปรึกษา</Button>
+                                                            <Button onClick={() => handleOpenAcceptDialog(row)}>รับเป็นคู่โครงงาน</Button>
+                                                            <Button onClick={() => handleOpenRejectDialog(row)}>ไม่รับเป็นคู่โครงงาน</Button>
                                                         </TableCell>
                                                     </TableRow>
                                                 ))
@@ -198,9 +193,9 @@ function RequestAdvisor() {
                                     </DialogActions>
                                 </Dialog>
                                 <Dialog open={openAcceptDialog} onClose={handleCloseAcceptDialog}>
-                                    <DialogTitle>ยืนยันการรับเป็นที่ปรึกษา</DialogTitle>
+                                    <DialogTitle>ยืนยันเป็นคู่โครงงาน</DialogTitle>
                                     <DialogContent>
-                                        คุณยินยอมเป็นที่ปรึกษาโครงการนี้ใช่หรือไม่?
+                                        คุณยินยอมเป็นคู่โครงงานนี้ใช่หรือไม่?
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={handleCloseAcceptDialog}>ยกเลิก</Button>
@@ -210,7 +205,7 @@ function RequestAdvisor() {
                                 <Dialog open={openRejectDialog} onClose={handleCloseRejectDialog}>
                                     <DialogTitle>ยืนยันการไม่รับเป็นที่ปรึกษา</DialogTitle>
                                     <DialogContent>
-                                        คุณไม่ยินยอมเป็นที่ปรึกษาโครงการนี้ใช่หรือไม่?
+                                        คุณไม่ยินยอมเป็นคู่โครงงานนี้ใช่หรือไม่?
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={handleCloseRejectDialog}>ยกเลิก</Button>
@@ -218,9 +213,9 @@ function RequestAdvisor() {
                                     </DialogActions>
                                 </Dialog>
                                 <Dialog open={openAcceptedAdvisorDialog} onClose={handleCloseAcceptedAdvisorDialog}>
-                                    <DialogTitle>การรับเป็นที่ปรึกษาสำเร็จ</DialogTitle>
+                                    <DialogTitle>การรับคู่โครงงานสำเร็จ</DialogTitle>
                                     <DialogContent>
-                                        คุณได้ตกลงรับเป็นที่ปรึกษาโครงการนี้เรียบร้อยแล้ว
+                                        คุณได้ตกลงรับเป็นคู่โครงงานนี้เรียบร้อยแล้ว
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={handleCloseAcceptedAdvisorDialog}>ปิด</Button>
@@ -235,4 +230,4 @@ function RequestAdvisor() {
     );
 }
 
-export default RequestAdvisor;
+export default Projectrequest;

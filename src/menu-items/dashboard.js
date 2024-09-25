@@ -83,6 +83,22 @@ const dashboard = {
       icon: icons.IconDashboard,
       breadcrumbs: false
     },
+    {
+      id: 'default16',
+      title: 'นักศึกษาที่ยังไม่มีที่ปรึกษา',
+      type: 'item',
+      url: 'staff/dashboard/CSB/Detail',
+      icon: icons.IconDashboard,
+      breadcrumbs: false
+    },
+    {
+      id: 'default17',
+      title: 'จัดการเเยกคู่โครงงาน',
+      type: 'item',
+      url: 'staff/dashboard/CSB/Separationproject ',
+      icon: icons.IconDashboard,
+      breadcrumbs: false
+    },
   ]
 };
 
