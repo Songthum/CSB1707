@@ -23,9 +23,7 @@ import { gridSpacing } from 'store/constant';
 import axios from 'axios';
 
 function CSB01() {
-
-
-    
+   
     const [selectedValues, setSelectedValues] = useState({
         networks: false,
         graphics: false,
@@ -299,9 +297,6 @@ function CSB01() {
         }));
         console.log(`${name} is now ${checked ? 'selected' : 'deselected'}`);
     };
-    
-    // Rest of your code
-    
 
     return (
         <MainCard>
