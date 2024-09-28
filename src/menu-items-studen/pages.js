@@ -87,6 +87,12 @@ const pages = {
           type: 'item',
           url: 'studen/sample-page/UploadLinkTranscript2', 
           target: false
+        },{
+          id: 'login32', //สร้างไอดีใหม่ด้วยนะ
+          title: 'ยื่นทดสอบโครงงานพิเศษ',
+          type: 'item',
+          url: 'studen/sample-page/Submitproject', 
+          target: false
         },
         {
           id: 'register33', //สร้างไอดีใหม่ด้วยนะ

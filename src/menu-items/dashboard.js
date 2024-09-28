@@ -43,14 +43,14 @@ const dashboard = {
         }
       ]
     },
-    {
-      id: 'default11',
-      title: 'เอกสารที่ยังไม่ได้ตรวจสอบ',
-      type: 'item',
-      url: 'staff/dashboard/CSB/ListOfDoc',
-      icon: icons.IconDashboard,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'default11',
+    //   title: 'เอกสารที่ยังไม่ได้ตรวจสอบ',
+    //   type: 'item',
+    //   url: 'staff/dashboard/CSB/ListOfDoc',
+    //   icon: icons.IconDashboard,
+    //   breadcrumbs: false
+    // },
     {
       id: 'default12',
       title: 'รายชื่อนักศึกษาตกค้าง',
@@ -91,14 +91,22 @@ const dashboard = {
       icon: icons.IconDashboard,
       breadcrumbs: false
     },
-    {
-      id: 'default17',
-      title: 'จัดการเเยกคู่โครงงาน',
-      type: 'item',
-      url: 'staff/dashboard/CSB/Separationproject ',
-      icon: icons.IconDashboard,
-      breadcrumbs: false
-    },
+    // {
+    //   id: 'default17',
+    //   title: 'จัดการเเยกคู่โครงงาน',
+    //   type: 'item',
+    //   url: 'staff/dashboard/CSB/Separationproject ',
+    //   icon: icons.IconDashboard,
+    //   breadcrumbs: false
+    // },
+    // {
+    //   id: 'default18',
+    //   title: 'เพิ่มรายชื่อนักศึกษา',
+    //   type: 'item',
+    //   url: 'staff/dashboard/CSB/Addstudents',
+    //   icon: icons.IconDashboard,
+    //   breadcrumbs: false
+    // },
   ]
 };
 

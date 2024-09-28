@@ -111,6 +111,14 @@ const utilities = {
       ]
     },
     {
+      id: 'sample-page5',
+      title: 'อนุมัติการยื่นสอบโครงงาน',
+      type: 'item',
+      url: 'teacher/utilities/asd',
+      icon: icons.IconBrandChrome,
+      breadcrumbs: false
+    },
+    {
       id: 'sample-page1',
       title: 'อนุมัติคะแนนสอบก้าวหน้า โดยประธานกรรมการสอบ',
       type: 'item',
