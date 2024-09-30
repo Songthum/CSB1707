@@ -31,7 +31,7 @@ const CSB03 = () => {
         if (isConfirmed) {
             try {
                 await axios.put(`http://localhost:9999/Project/${PData.P_id}`, {
-                    Exam_CSB03_status: 'ปฏิเสธ'
+                    P_CSB03: 'ปฏิเสธ'
                 });
                 alert('ปฏิเสธการยื่นสอบ CSB03');
             } catch (error) {
@@ -51,7 +51,7 @@ const CSB03 = () => {
         if (isConfirmed) {
             try {
                 await axios.put(`http://localhost:9999/Project/${PData.P_id}`, {
-                    Exam_CSB03_status: 'ยินยอม'
+                    P_CSB03: 'ยินยอม'
                 });
                 alert('ยินยอมการยื่นสอบ CSB03');
             } catch (error) {
@@ -73,7 +73,7 @@ const CSB03 = () => {
                     setIsExamOpen(true);
                 } else {
                     setIsExamOpen(false);
-                    alert('ไม่ได้อยู่ในช่วงยื่นสอบก้าวหน้า');
+                    alert('ไม่ได้อยู่ในช่วงยื่นสอบป้องกัน');
                     return; // Exit if the exam is not open
                 }
                 

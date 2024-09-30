@@ -33,8 +33,7 @@ function CSB01() {
     });
 
     const getFilteredOptions = (selectedStudentIds) => {
-        // สมมติว่า projectStudents เป็น array ที่เก็บรหัสนักเรียนที่มีอยู่ในโครงการ
-        const projectStudents = []; // ดึงข้อมูลจาก API หรือสถานะที่เก็บไว้
+        const projectStudents = []; 
     
         return studentData.filter(student => 
             !selectedStudentIds.includes(student.S_id) && 
@@ -71,6 +70,7 @@ function CSB01() {
     const [studentData, setStudentData] = useState([]);
     const [studentNames, setStudentNames] = useState([]);
     const [teachers, setTeachers] = useState([]);
+    const consentStatus = "ยินยอม"; 
 
     const [PData, setPData] = useState({
         P_name: '',
@@ -79,6 +79,7 @@ function CSB01() {
         P_CSB01: '',
         P_CSB02: '',
         P_CSB03: '',
+        P_CSB04: '',
         P_S1: '',
         P_S2: '',
         P_T: '',
@@ -121,6 +122,7 @@ function CSB01() {
 
         const projectData = {
             ...PData,
+            P_CSB01: consentStatus,
             P_S1: student1Name,
             P_S2: student2Name,
             P_T: teacherName
@@ -139,6 +141,7 @@ function CSB01() {
                 P_CSB01: '',
                 P_CSB02: '',
                 P_CSB03: '',
+                P_CSB04: '',
                 P_S1: '',
                 P_S2: '',
                 P_T: '',
@@ -270,11 +273,12 @@ function CSB01() {
                     );
     
                     setPData({
-                        P_id: project._id || '',
-                        P_name: project.P_name || '',
-                        P_S1: project.P_S1 || '',
-                        P_S2: project.P_S2 || '',
-                        P_T: project.P_T || '',
+                        P_id: project._id,
+                        P_name: project.P_name ,
+
+                        P_S1: project.P_S1 ,
+                        P_S2: project.P_S2,
+                        P_T: project.P_T ,
                         ExamStatus: examResult ? examResult.Exam_CSB01_status : ''
                     });
                 } else {

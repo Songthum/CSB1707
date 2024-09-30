@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Typography } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { Grid } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
@@ -7,102 +7,72 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
 function ListNameStudentS1() {
-    const [studentData, setStudentData] = useState([]);
     const [projects, setProjects] = useState([]);
+    const [examResults, setExamResults] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [studentsResponse, projectsResponse] = await Promise.all([
-                    axios.get('http://localhost:9999/students'),
-                    axios.get('http://localhost:9999/Project')
-                ]);
+        // Fetch both Project and Exam results data
+        const fetchProjects = axios.get('http://localhost:9999/Project');
+        const fetchExamResults = axios.get('http://localhost:9999/Exam_results');
 
-                if (studentsResponse.data && Array.isArray(studentsResponse.data)) {
-                    const uniqueStudents = Array.from(new Map(studentsResponse.data.map(item => [item.S_id, item])).values());
-                    setStudentData(uniqueStudents); // Store all student data
-                }
-
-                if (projectsResponse.data && Array.isArray(projectsResponse.data)) {
-                    setProjects(projectsResponse.data); // Store project data
-                }
-
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-        fetchData();
+        Promise.all([fetchProjects, fetchExamResults])
+            .then(([projectResponse, examResultsResponse]) => {
+                setProjects(projectResponse.data); // Assuming the data is an array of projects
+                setExamResults(examResultsResponse.data); // Assuming the data is an array of exam results
+                setLoading(false);
+            })
+            .catch(err => {
+                setError(err.message);
+                setLoading(false);
+            });
     }, []);
 
-    // Find the project status for each student
-    const findProjectStatus = (studentId) => {
-        const project = projects.find(project => project.P_S1 === studentId || project.P_S2 === studentId);
-        return project ? project.P_status : '';
-    };
-
-    // Filter students based on S_T_SP1 being 'ผ่าน' and exclude those with S_T_SP2 as 'ผ่าน'
-    const filteredStudentData = studentData.filter(student => {
-        const studentInProject = projects.find(project => project.P_S1 === student.S_id || project.P_S2 === student.S_id);
-        const hasS_T_SP2Passed = student.S_T_SP2 === 'ผ่าน';
-        return student.S_T_SP1 === 'ผ่าน' && !hasS_T_SP2Passed;
+    // Filter projects based on matching P_name with Er_Pname and Er_CSB01_status being "ผ่าน"
+    const filteredProjects = projects.filter(project => {
+        // Find matching exam result where P_name matches Er_Pname
+        const matchingExamResult = examResults.find(result => result.Er_Pname === project.P_name);
+        // Return the project only if the matching exam result has Er_CSB01_status === "ผ่าน"
+        return matchingExamResult && matchingExamResult.Er_CSB01_status === "ผ่าน";
     });
-
-    const checklistData = filteredStudentData.map(item => ({
-        id: uuidv4(),
-        StudentID: item.S_id,
-        name: item.S_name,
-        StatusProject: findProjectStatus(item.S_id)
-    }));
-
-    const handleButtonClick = (id) => {
-        console.log(`Button clicked for item with id ${id}`);
-    };
 
     return (
         <MainCard>
             <Grid container spacing={gridSpacing}>
                 <Grid item xs={12}>
-                    <Grid container alignItems="center" justifyContent="space-between">
-                        <Grid item>
-                            <div>
-                                <Typography variant="h1" sx={{ marginLeft: "center" }}>
-                                    รายชื่อนักศึกษาโครงการพิเศษสองภาษา
-                                </Typography>
-                                <TableContainer>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>ลำดับที่</TableCell>
-                                                <TableCell>รหัสนักศึกษา</TableCell>
-                                                <TableCell>ชื่อ-สกุล</TableCell>
-                                                <TableCell>สถานะโครงงาน</TableCell>
-                                                <TableCell>รายละเอียดเพิ่มเติม</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {checklistData.length > 0 ? (
-                                                checklistData.map((item, index) => (
-                                                    <TableRow key={item.id}>
-                                                        <TableCell>{index + 1}</TableCell>
-                                                        <TableCell>{item.StudentID}</TableCell>
-                                                        <TableCell>{item.name}</TableCell>
-                                                        <TableCell>{item.StatusProject}</TableCell>
-                                                        <TableCell>
-                                                            <Button onClick={() => handleButtonClick(item.id)}>Link</Button>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))
-                                            ) : (
-                                                <TableRow>
-                                                    <TableCell colSpan={5}>No data available</TableCell>
-                                                </TableRow>
-                                            )}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </div>
-                        </Grid>
-                    </Grid>
+                    <Typography variant="h1" sx={{ textAlign: 'center' }}>
+                        รายชื่อนักศึกษาโครงการพิเศษสองภาษา
+                    </Typography><br/>
+
+                    {loading ? (
+                        <Typography variant="h6" sx={{ textAlign: 'center' }}>Loading...</Typography>
+                    ) : error ? (
+                        <Typography variant="h6" color="error">{error}</Typography>
+                    ) : (
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>ลำดับที่</TableCell>
+                                        <TableCell>โครงงาน</TableCell>
+                                        <TableCell>นักศึกษาคนที่ 1</TableCell>
+                                        <TableCell>นักศึกษาคนที่ 2</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {filteredProjects.map((project, index) => (
+                                        <TableRow key={uuidv4()}>
+                                            <TableCell>{index + 1}</TableCell>
+                                            <TableCell>{project.P_name}</TableCell>
+                                            <TableCell>{project.P_S1}</TableCell>
+                                            <TableCell>{project.P_S2}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
                 </Grid>
             </Grid>
         </MainCard>

@@ -184,10 +184,10 @@ function RequestAdvisor() {
                                     <DialogContent>
                                         {selectedProject ? (
                                             <div>
-                                                <h2>{selectedProject.P_name}</h2>
-                                                <p>{selectedProject.P_details}</p>
+                                                <h2>ชื่อโครงงาน <br /><br />{selectedProject.P_name}</h2><br />
+                                                <h3>รายละเอียดโครงงาน<br /><br />{selectedProject.P_details}</h3><br />
                                                 <p>{selectedProject.P_type}</p>
-                                                <p>{selectedProject.P_tool}</p>
+                                                <h3>เครื่องมือที่ใช้<br /><br />{selectedProject.P_tool}</h3>
                                             </div>
                                         ) : (
                                             'No project details available'

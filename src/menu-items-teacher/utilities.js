@@ -72,14 +72,14 @@ const utilities = {
       icon: icons.IconBrandChrome,
       breadcrumbs: false
     },
-    // {
-    //   id: 'sample-page0111',
-    //   title: 'ประเมินการสอบ',
-    //   type: 'item',
-    //   url: 'teacher/utilities/EvaluateProject',
-    //   icon: icons.IconBrandChrome,
-    //   breadcrumbs: false
-    // },
+    {
+      id: 'sample-page2',
+      title: 'อนุมัติการยื่นสอบโครงงาน',
+      type: 'item',
+      url: 'teacher/utilities/Approvetest',
+      icon: icons.IconBrandChrome,
+      breadcrumbs: false
+    },
     {
       id: 'authentication', //สร้างไอดีใหม่ด้วยนะ
       title: 'ประเมินคะแนนการสอบ',
@@ -111,15 +111,15 @@ const utilities = {
       ]
     },
     {
-      id: 'sample-page5',
-      title: 'อนุมัติการยื่นสอบโครงงาน',
+      id: 'sample-page3',
+      title: 'อนุมัติคะแนนสอบหัวข้อ โดยประธานกรรมการสอบ',
       type: 'item',
-      url: 'teacher/utilities/asd',
+      url: 'teacher/utilities/ChairmanScoreCSB01',
       icon: icons.IconBrandChrome,
       breadcrumbs: false
     },
     {
-      id: 'sample-page1',
+      id: 'sample-page4',
       title: 'อนุมัติคะแนนสอบก้าวหน้า โดยประธานกรรมการสอบ',
       type: 'item',
       url: 'teacher/utilities/ChairmanScoreCSB02',
@@ -127,7 +127,7 @@ const utilities = {
       breadcrumbs: false
     },
     {
-      id: 'sample-page2',
+      id: 'sample-page5',
       title: 'อนุมัติคะแนนสอบป้องกัน โดยประธานกรรมการสอบ',
       type: 'item',
       url: 'teacher/utilities/ChairmanScoreCSB03',
@@ -135,7 +135,15 @@ const utilities = {
       breadcrumbs: false
     },
     {
-      id: 'sample-page3',
+      id: 'sample-page6',
+      title: 'อนุมัติคะแนนสอบหัวข้อ โดยหัวหน้าภาควิชา',
+      type: 'item',
+      url: 'teacher/utilities/DepartmentHeadScoreCSB01',
+      icon: icons.IconBrandChrome,
+      breadcrumbs: false
+    },
+    {
+      id: 'sample-page7',
       title: 'อนุมัติคะแนนสอบก้าวหน้า โดยหัวหน้าภาควิชา',
       type: 'item',
       url: 'teacher/utilities/DepartmentHeadScoreCSB02',
@@ -143,7 +151,7 @@ const utilities = {
       breadcrumbs: false
     },
     {
-      id: 'sample-page4',
+      id: 'sample-page8',
       title: 'อนุมัติคะแนนสอบป้องกัน โดยหัวหน้าภาควิชา',
       type: 'item',
       url: 'teacher/utilities/DepartmentHeadScoreCSB03',

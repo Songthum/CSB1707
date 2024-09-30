@@ -19,15 +19,48 @@ function UploadLinkTranscript1() {
   const [linkValue, setLinkValue] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [Transcript, setTranscript] = useState([]);
+  const [uploadedFile, setUploadedFile] = useState(null); // State for the uploaded file
 
   const handleLinkChange = (e) => {
     setLinkValue(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setUploadedFile(file); // Set the uploaded file
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setOpenDialog(true);
+
+    // Capture current time for Thailand (UTC+7)
+    const currentTime = new Date().toLocaleString('th-TH', {
+      timeZone: 'Asia/Bangkok',
+      hour12: false, // Optional: Use 24-hour format
+    });
+    
+    const status = 'ผ่าน'; // Set F_ST1 status
+
+    try {
+      // Send POST request with status and timestamp
+      const response = await axios.post('http://localhost:9999/FilePDF', {
+        F_id: '',
+        F_name: '',
+        F_ST1: status,
+        F_ST2: '',
+        F_E: '',
+        F_T_1: currentTime,
+        F_T_2: '',
+        fileName: uploadedFile ? uploadedFile.name : 'No file uploaded',
+      });
+
+      console.log('Response:', response.data);
+    } catch (error) {
+      console.error('Error posting data:', error);
+    }
   };
+
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -48,7 +81,7 @@ function UploadLinkTranscript1() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.post('http://localhost:9999/Transcript');
+        const response = await axios.post('http://localhost:9999/FilePDF');
         setTranscript(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -68,7 +101,8 @@ function UploadLinkTranscript1() {
               <Container>
                 <h1>ตรวจสอบคุณสมบัติยื่นโครงงานพิเศษ 2 (ปริญญานิพนธ์)</h1>
                 <h2>เกณฑ์การประเมิน</h2>
-                <p>นักศึกษาโครงการพิเศษสองภาษาต้องลงทะเบียนเรียนวิชา 040613141 Special Project I
+                <p>
+                  นักศึกษาโครงการพิเศษสองภาษาต้องลงทะเบียนเรียนวิชา 040613141 Special Project I
                   ได้ผลการเรียนรวม ≥ 102 หน่วยกิต และได้ผลการเรียนรายวิชาภาคฯ 0406xxxxx ≥ 57 หน่วยกิต
                   โดยใช้เอกสารใบรับรองผลการศึกษา (Transcript)
                 </p>
@@ -90,11 +124,19 @@ function UploadLinkTranscript1() {
                     sx={{ maxWidth: 180, m: 2 }}
                   >
                     Upload file
-                    <VisuallyHiddenInput type="file" />
+                    <VisuallyHiddenInput type="file" onChange={handleFileChange} />
                   </Button>
 
+                  {uploadedFile && ( // Display the uploaded file name
+                    <Typography variant="body2" sx={{ marginTop: 2 }}>
+                      Uploaded file: {uploadedFile.name}
+                    </Typography>
+                  )}
+
                   <Grid sx={{ textAlign: 'center' }}>
-                    <Button variant="contained" onClick={handleSubmit} sx={{ maxWidth: 100 }}>ตรวจสอบ</Button>
+                    <Button variant="contained" onClick={handleSubmit} sx={{ maxWidth: 100 }}>
+                      ตรวจสอบ
+                    </Button>
                   </Grid>
                 </Box>
 
@@ -102,6 +144,11 @@ function UploadLinkTranscript1() {
                   <DialogTitle>ตรวจสอบคุณสมบัติยื่นสอบ</DialogTitle>
                   <DialogContent>
                     <p>ผลการตรวจสอบ</p>
+                    {uploadedFile && (
+                      <Typography variant="body2">
+                        File: {uploadedFile.name}
+                      </Typography>
+                    )}
                   </DialogContent>
                   <DialogActions>
                     <Button onClick={handleCloseDialog}>Close</Button>

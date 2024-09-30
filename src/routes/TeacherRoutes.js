@@ -23,13 +23,16 @@ const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons
 const InputScoreCSB01Page = Loadable(lazy(() => import('views/utilities/InputScoreCSB01')));
 const InputScoreCSB02Page = Loadable(lazy(() => import('views/utilities/InputScoreCSB02')));
 const InputScoreCSB03Page = Loadable(lazy(() => import('views/utilities/InputScoreCSB03')));
+const ChairmanScoreCSB01Page = Loadable(lazy(() => import('views/utilities/ChairmanScoreCSB01')));
 const ChairmanScoreCSB02Page = Loadable(lazy(() => import('views/utilities/ChairmanScoreCSB02')));
 const ChairmanScoreCSB03Page = Loadable(lazy(() => import('views/utilities/ChairmanScoreCSB03')));
+const DepartmentHeadScoreCSB01Page = Loadable(lazy(() => import('views/utilities/DepartmentHeadScoreCSB01')));
 const DepartmentHeadScoreCSB02Page = Loadable(lazy(() => import('views/utilities/DepartmentHeadScoreCSB02')));
 const DepartmentHeadScoreCSB03Page = Loadable(lazy(() => import('views/utilities/DepartmentHeadScoreCSB03')));
 const RequestAdvisorPage = Loadable(lazy(() => import('views/utilities/RequestAdvisor')));
 const EvaluateProjectPage = Loadable(lazy(() => import('views/utilities/EvaluateProject')));
 const AppTestPage = Loadable(lazy(() => import('views/utilities/test')));
+const ApprovetestPage = Loadable(lazy(() => import('views/utilities/Approvetest')));
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
@@ -58,12 +61,20 @@ const TeaherRoutes = {
       element: <InputScoreCSB03Page />
     },
     {
+      path: 'teacher/utilities/ChairmanScoreCSB01',
+      element: <ChairmanScoreCSB01Page />
+    },
+    {
       path: 'teacher/utilities/ChairmanScoreCSB02',
       element: <ChairmanScoreCSB02Page />
     },
     {
       path: 'teacher/utilities/ChairmanScoreCSB03',
       element: <ChairmanScoreCSB03Page />
+    },
+    {
+      path: 'teacher/utilities/DepartmentHeadScoreCSB01',
+      element: <DepartmentHeadScoreCSB01Page />
     },
     {
       path: 'teacher/utilities/DepartmentHeadScoreCSB02',
@@ -85,7 +96,10 @@ const TeaherRoutes = {
       path: 'teacher/utilities/AppTest',
       element: <AppTestPage />
     },
-
+    {
+      path: 'teacher/utilities/Approvetest',
+      element: <ApprovetestPage />
+    },
   ]
 };
 
